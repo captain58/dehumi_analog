@@ -1,0 +1,32 @@
+T0E64 619063:216 SEGGER J-Link V6.32i Log File (0001ms, 117294ms total)
+T0E64 619063:216 DLL Compiled: Jul 24 2018 15:19:55 (0001ms, 117294ms total)
+T0E64 619063:216 Logging started @ 2023-03-12 19:13 (0001ms, 117294ms total)
+T0E64 619063:217 JLINK_SetWarnOutHandler(...) (0000ms, 117294ms total)
+T0E64 619063:217 JLINK_OpenEx(...)
+Firmware: J-Link V9 compiled May  7 2021 16:26:12
+Hardware: V9.60
+S/N: 69669042
+Feature(s): RDI, GDB, FlashDL, FlashBP, JFlash
+TELNET listener socket opened on port 19021Device "CORTEX-M0+" selected.WEBSRV 
+Starting webserver (0099ms, 117393ms total)
+T0E64 619063:217 WEBSRV Webserver running on local port 19080 (0099ms, 117393ms total)
+T0E64 619063:217   returns O.K. (0099ms, 117393ms total)
+T0E64 619063:316 JLINK_GetEmuCaps()  returns 0xB9FF7BBF (0000ms, 117393ms total)
+T0E64 619063:317 JLINK_TIF_GetAvailable(...) (0001ms, 117394ms total)
+T0E64 619063:318 JLINK_SetErrorOutHandler(...) (0000ms, 117394ms total)
+T0E64 619063:318 JLINK_ExecCommand("ProjectFile = "D:\project\021_³ýÊª»úÄ£Äâ°æ\MDK\JLinkSettings.ini"", ...). Device "CORTEX-M0+" selected.  returns 0x00 (0002ms, 117396ms total)
+T0E64 619063:320 JLINK_ExecCommand("Device = HC32L136J8TA", ...). Device "CORTEX-M0+" selected.  returns 0x00 (0001ms, 117397ms total)
+T0E64 619063:321 JLINK_ExecCommand("DisableConnectionTimeout", ...).   returns 0x01 (0000ms, 117397ms total)
+T0E64 619063:321 JLINK_GetHardwareVersion()  returns 0x17700 (0000ms, 117397ms total)
+T0E64 619063:321 JLINK_GetDLLVersion()  returns 63209 (0000ms, 117397ms total)
+T0E64 619063:321 JLINK_GetFirmwareString(...) (0000ms, 117397ms total)
+T0E64 619063:321 JLINK_GetDLLVersion()  returns 63209 (0000ms, 117397ms total)
+T0E64 619063:321 JLINK_GetCompileDateTime() (0000ms, 117397ms total)
+T0E64 619063:321 JLINK_GetFirmwareString(...) (0000ms, 117397ms total)
+T0E64 619063:321 JLINK_GetHardwareVersion()  returns 0x17700 (0000ms, 117397ms total)
+T0E64 619063:321 JLINK_TIF_Select(JLINKARM_TIF_SWD)  returns 0x00 (0002ms, 117399ms total)
+T0E64 619063:323 JLINK_SetSpeed(500) (0000ms, 117399ms total)
+T0E64 619063:323 JLINK_GetId() >0x10B TIF> >0x10F TIF> >0x10B TIF> >0x10F TIF> >0x10B TIF> >0x10F TIF> >0x10B TIF> >0x10F TIF>  returns 0x00000000 (0288ms, 117687ms total)
+T0E64 619065:525 JLINK_Close() (0010ms, 117697ms total)
+T0E64 619065:525  (0010ms, 117697ms total)
+T0E64 619065:525 Closed (0010ms, 117697ms total)
