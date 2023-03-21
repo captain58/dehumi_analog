@@ -332,7 +332,7 @@ void Debug_DevCurSubStatus_(uint8_t uiSubStatus) {
     }
     return;
 }
-
+#define CON_HUMI_FILTER 10
 void Task_thread_entry(void *parameter) {
     int8_t level;
     RUN_STATUS_E enRunStatus;
@@ -340,7 +340,7 @@ void Task_thread_entry(void *parameter) {
     uint8_t uiSubStatus;
     CORE_DATA_S *pstData = NULL;
     uint32_t uiLoop = 0;
-
+    static uint16_t s_2high_count=0,s_2mid_count=0,s_2low_count=0;
     /* 初始化关闭所有部件 */
     Task_Set_DeviceRun(1, 0, WATER_DUMP_CLOSE, 0, 0, ELEMAC_LEVEL_CLOSE, 0, 0);
 
@@ -394,24 +394,47 @@ void Task_thread_entry(void *parameter) {
 
                         /* 判断当前湿度,大于上限，启动除湿 */
                         
-                        Debug_Print("DEHUMIDIFICATION_WAIT_E  cur[%d] level[%d]\n", pstData->stInPutInfo.uiHumidity, pstData->stAlarmData.uiHumidityHigh);
+                        Debug_Print("DEHUMIDIFICATION_WAIT_E  cur[%d] level[%d]\n", 
+                            pstData->stInPutInfo.uiHumidity, pstData->stAlarmData.uiHumidityHigh);
                         if (pstData->stInPutInfo.uiHumidity > pstData->stAlarmData.uiHumidityHigh) {
                             /* 压缩机工作间隔3分钟,且至少等待30s */
+
                             if (((rt_tick_get()/1000) - pstData->stAlarmData.iLastStopTime > 3*60) &&
-                                (g_dev_run_timecnt > 30)) {
-                                g_dev_run_timecnt = 0;
-                                pstData->stDevStatus.uiDevRunSubStatus = DEHUMIDIFICATION_RUN_E;
-                                g_com_run_time = 1;
-                                g_timecnt = 0;      /* 管盘温度连续小于0°计数清零 */
-                                Debug_fileline
+                                (g_dev_run_timecnt > 30)) 
+                            {
+                                s_2high_count++;
+                                s_2mid_count = 0;
+                                s_2low_count = 0;
+                                if(s_2high_count > CON_HUMI_FILTER)
+                                {
+                                    s_2high_count = 0;                                
+                                    g_dev_run_timecnt = 0;
+                                    pstData->stDevStatus.uiDevRunSubStatus = DEHUMIDIFICATION_RUN_E;
+                                    g_com_run_time = 1;
+                                    g_timecnt = 0;      /* 管盘温度连续小于0°计数清零 */
+                                    Debug_fileline
+                                }
                             }
-                        } else {
+                        } 
+                        else 
+                        {
+                            s_2high_count = 0;
+                            s_2mid_count = 0;                            
                             /* 自动模式，且湿度小于设定下限，进入加湿模式 */
-                            if ((enRunMode == RUN_MODE_AUTO_E) && (pstData->stInPutInfo.uiHumidity < pstData->stAlarmData.uiHumidityLow)) {
-                                g_dev_run_timecnt = 0;
-                                pstData->stDevStatus.uiDevRunStatus = RUN_STATUS_HUMIDIFICATION_ING;
-                                pstData->stDevStatus.uiDevRunSubStatus = HUMIDIFICATION_STANDBY_E;
-                                Debug_fileline
+                            if ((enRunMode == RUN_MODE_AUTO_E) && (pstData->stInPutInfo.uiHumidity < pstData->stAlarmData.uiHumidityLow)) 
+                            {
+                                s_2low_count++;
+                                
+
+                                if(s_2low_count > CON_HUMI_FILTER)
+                                {
+                                    s_2low_count = 0;
+                                
+                                    g_dev_run_timecnt = 0;
+                                    pstData->stDevStatus.uiDevRunStatus = RUN_STATUS_HUMIDIFICATION_ING;
+                                    pstData->stDevStatus.uiDevRunSubStatus = HUMIDIFICATION_STANDBY_E;
+                                    Debug_fileline
+                                }
                             }
                         }
                         Data_Get_UnLock();
@@ -456,10 +479,22 @@ void Task_thread_entry(void *parameter) {
                         }
 
                         /* 工作时间大于3分钟，若湿度低于上限，切回等待模式 */
-                        if ((g_dev_run_timecnt > 3 * 60) && (pstData->stInPutInfo.uiHumidity < pstData->stAlarmData.uiHumidityHigh)) {
-                            g_dev_run_timecnt = 0;
-                            pstData->stDevStatus.uiDevRunSubStatus = DEHUMIDIFICATION_WAIT_E;
-                            Debug_fileline
+                        if ((g_dev_run_timecnt > 3 * 60) && (pstData->stInPutInfo.uiHumidity < pstData->stAlarmData.uiHumidityHigh)) 
+                        {
+                            s_2low_count++;
+                            s_2high_count = 0;
+                            s_2mid_count = 0;                            
+                            if(s_2low_count > CON_HUMI_FILTER)
+                            {
+                                s_2low_count = 0;
+                                g_dev_run_timecnt = 0;
+                                pstData->stDevStatus.uiDevRunSubStatus = DEHUMIDIFICATION_WAIT_E;
+                                Debug_fileline
+                            }
+                        }
+                        else
+                        {
+                            s_2low_count = 0;
                         }
                         Data_Get_UnLock();
 
@@ -517,16 +552,35 @@ void Task_thread_entry(void *parameter) {
                 }
                 /* 当前湿度比下限高 暂停 */
                 if (pstData->stInPutInfo.uiHumidity > pstData->stAlarmData.uiHumidityLow) {
-                    g_dev_run_timecnt = 0;
-                    pstData->stDevStatus.uiDevRunSubStatus = HUMIDIFICATION_STANDBY_E;
-                    Debug_fileline
+                    s_2mid_count++;
+                    s_2low_count = 0;    
+                    if(s_2mid_count > CON_HUMI_FILTER)   
+                    {
+                        g_dev_run_timecnt = 0;
+                        pstData->stDevStatus.uiDevRunSubStatus = HUMIDIFICATION_STANDBY_E;
+                        Debug_fileline
+                    }
+                }
+                else
+                {
+                    s_2mid_count = 0;
                 }
                 /* 自动模式，且湿度大于设定上限，进入除湿模式 */
                 if ((enRunMode == RUN_MODE_AUTO_E) && (pstData->stInPutInfo.uiHumidity > pstData->stAlarmData.uiHumidityHigh)) {
-                    g_dev_run_timecnt = 0;
-                    pstData->stDevStatus.uiDevRunStatus = RUN_STATUS_DEHUMIDIFICATION_ING;
-                    pstData->stDevStatus.uiDevRunSubStatus = DEHUMIDIFICATION_WAIT_E;
-                    Debug_fileline
+                    s_2high_count ++;
+                    s_2low_count = 0;    
+                    if(s_2high_count > CON_HUMI_FILTER)
+                    {
+                        s_2mid_count = 0;
+                        g_dev_run_timecnt = 0;
+                        pstData->stDevStatus.uiDevRunStatus = RUN_STATUS_DEHUMIDIFICATION_ING;
+                        pstData->stDevStatus.uiDevRunSubStatus = DEHUMIDIFICATION_WAIT_E;
+                        Debug_fileline
+                    }
+                }
+                else
+                {
+                    s_2high_count = 0;
                 }
                 Data_Get_UnLock();
                 switch (uiSubStatus)
