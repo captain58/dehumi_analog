@@ -281,7 +281,61 @@ RUN_STATUS_E Get_DevStatusForDisplay(void) {
     Data_Get_UnLock();
     return uiRet;
 }
+/* 获取设备显示运行状态 */
+RUN_SHOW_E Get_DevStatusForShow(void) {
+    RUN_SHOW_E uiRet = 0;
+    Data_Get_Lock();
+    uint16_t uiSubStatus = Get_Dev_RunSubStatus();
+    switch(g_Core_Data.stDevStatus.uiDevRunStatus)
+    {
+        case RUN_STATUS_STOP:
+            uiRet = RUN_SHOW_STOP;
+            break;
+        case RUN_STATUS_STANDBY:
+            uiRet = RUN_SHOW_STANDBY;
+            break;
+        case RUN_STATUS_DEHUMIDIFICATION_ING:
+            if(DEHUMIDIFICATION_WAIT_E == uiSubStatus)
+            {
+                uiRet = RUN_SHOW_PURIFY_ING;
+            }
+            else if(DEHUMIDIFICATION_DEFROST_E == uiSubStatus)
+            {
+                uiRet = RUN_SHOW_DEFROST;
+            }
+            else
+            {
+                uiRet = RUN_SHOW_DEHUMIDIFICATION_ING;
+            }
+            break;
+        case RUN_STATUS_HUMIDIFICATION_ING:
+            if(HUMIDIFICATION_STANDBY_E == uiSubStatus)
+            {
+                uiRet = RUN_SHOW_PURIFY_ING;
+            }
+            else
+            {
+                uiRet = RUN_SHOW_HUMIDIFICATION_ING;
+            }
+            break;
+        case RUN_STATUS_DEFROST_ING:
+            uiRet = RUN_SHOW_DEFROST;
+            break;
+        case RUN_STATUS_PURIFY_ING:
+        case RUN_STATUS_DEHUMIDIFICATION_WAITING:  
 
+        case RUN_STATUS_HUMIDIFICATION_WAITING:
+            uiRet = RUN_SHOW_PURIFY_ING;
+            break;    
+        default:
+            uiRet = RUN_SHOW_AUOT;
+            break;
+    }
+
+
+    Data_Get_UnLock();
+    return uiRet;
+}
 /* rtc定时中断阻塞，1分钟一次 */
 void TimeSwitch_thread_entry(void *parameter) {
     char *str;
@@ -504,13 +558,17 @@ void Check_Alarm_StopDevice(void) {
         Set_Dev_RunMode(RUN_MODE_STOP_E);
     }
 }
-
+#define CON_UNDER_COMPRESS_MAX 180
+#define CON_TEMP_HUMI_ERR_MAX 60
 void Coredata_thread_entry(void *parameter) {
     int16_t iTubeTemperature;
     int16_t iTemperature=0;
     uint16_t uiHumidity=1500;
     uint16_t uiLoop = 0;
-
+    uint16_t ui_compressor_under_count = 0;
+    uint8_t uiCompressorPressure;
+    uint16_t ui_temp_humi_err_count = 0;
+    uint8_t ui_temp_humi_err;
     while (TRUE) {
         uiLoop++;
         if (Sync_TempHum(&iTemperature, &uiHumidity) && (iTemperature > -3000)) {
@@ -524,10 +582,24 @@ void Coredata_thread_entry(void *parameter) {
             if ((uiLoop % 30) == 0) {
                 Debug_Print(">>>Sync_TempHum: temp:%d, humi:%u\n", iTemperature, uiHumidity);
             }
+            ui_temp_humi_err_count = 0;
         } else {
             Data_Get_Lock();
-            g_Core_Data.stDevStatus.uiTemperatureStatus = 1;
-            g_Core_Data.stDevStatus.uiHumidityStatus = 1;
+            ui_temp_humi_err_count++;
+            if(ui_temp_humi_err_count >= CON_TEMP_HUMI_ERR_MAX )
+            {
+                g_Core_Data.stDevStatus.uiTemperatureStatus = 1;
+                g_Core_Data.stDevStatus.uiHumidityStatus = 1;
+                if(ui_temp_humi_err_count > 0x8000) 
+                {
+                    ui_temp_humi_err_count = CON_TEMP_HUMI_ERR_MAX;
+                }
+            }
+            else
+            {
+                g_Core_Data.stDevStatus.uiTemperatureStatus = 0;
+                g_Core_Data.stDevStatus.uiHumidityStatus = 0;
+            }
             g_Core_Data.stDevStatus.uiStopTemperCnt++;
             Data_Get_UnLock();
             Debug_Print(">>>Sync_TempHum: failed\n");
@@ -553,7 +625,25 @@ void Coredata_thread_entry(void *parameter) {
         g_Core_Data.stInPutInfo.uiLowerWaterLevel = !IoDevGetStatus(LOW_WATER_LEVEL_GPIO, LOW_WATER_LEVEL_PIN);
         g_Core_Data.stInPutInfo.uiUpperWaterLevel = IoDevGetStatus(UPPER_WATER_LEVEL_GPIO, UPPER_WATER_LEVEL_PIN);
         g_Core_Data.stInPutInfo.uiMidWaterLevel = IoDevGetStatus(MID_WATER_LEVEL_GPIO, MID_WATER_LEVEL_PIN);
-        g_Core_Data.stInPutInfo.uiCompressorPressure = !IoDevGetStatus(COMPERSSORPRESSURE_GPIO, COMPERSSORPRESSURE_PIN);
+        
+        uiCompressorPressure = !IoDevGetStatus(COMPERSSORPRESSURE_GPIO, COMPERSSORPRESSURE_PIN);
+        if(TRUE == uiCompressorPressure)
+        {
+            ui_compressor_under_count++;
+            if(ui_compressor_under_count < CON_UNDER_COMPRESS_MAX)
+            {
+                uiCompressorPressure = FALSE;
+                if(ui_compressor_under_count > 0x8000)
+                    ui_compressor_under_count = CON_UNDER_COMPRESS_MAX;
+            }
+        }
+        else
+        {
+            ui_compressor_under_count = 0;
+        }
+        g_Core_Data.stInPutInfo.uiCompressorPressure = uiCompressorPressure;
+        
+        
         if ((uiLoop % 30) == 0) {
             Debug_Print(">>>InputGet: uiWaterLeakage:%u\n", g_Core_Data.stInPutInfo.uiWaterLeakage);
             Debug_Print(">>>InputGet: uiLowerWaterLevel:%u\n", g_Core_Data.stInPutInfo.uiLowerWaterLevel);
@@ -619,7 +709,7 @@ void CoreData_Default_Init(void) {
     g_Core_Data.stAlarmData.iHumidityCorrect = 0;       /* 不修正 */
     g_Core_Data.stAlarmData.uiTimOpenCloseFlag = 0;       /* 定时开关机默认关闭 */
     g_Core_Data.stAlarmData.uiTimOpenCloseMap = 0;       /* 定时开关机默认关闭 */
-    g_Core_Data.stAlarmData.uiHumidityLow = 4000;       /* 湿度下限 40% */
+    g_Core_Data.stAlarmData.uiHumidityLow = 5000;       /* 湿度下限 40% */
     g_Core_Data.stAlarmData.uiHumidityHigh = 6000;      /* 湿度上限 60% */
     g_Core_Data.stAlarmData.uiDehumiTime = 20;      /* 压缩机启动时间 */
     g_Core_Data.stAlarmData.uiDehumiTimeDelay = 10; /* 压缩机休息时间  */

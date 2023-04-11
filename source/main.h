@@ -3,7 +3,7 @@
 #include <rtthread.h>
 #include "bsp/bsp_wdt.h"
 #define MAJOR_VER       "v0.0."
-#define MINOR_VER       "43"
+#define MINOR_VER       "51"
 #define SPECIAL_VER     "-chr07"
 
 /* 打印缓存 */

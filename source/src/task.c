@@ -4,6 +4,8 @@ static uint32_t g_timecnt = 0;  /* 时间计数，单位s */
 static uint32_t g_timecntcompressure = 0;  /* 压缩机压力时间计数，单位s */
 static uint32_t g_com_run_time = 0;  /* 压缩机运行时间，单位s */
 
+#define CON_HUMIDITY_MARGIN 300
+
 /* 获取pm2.5的等级 1优2劣3良 */
 uint8_t Get_Pm2_5_Level(uint16_t value) {
     if (value < 35) {
@@ -235,21 +237,22 @@ int8_t Get_Ele_LevelByHum(uint8_t uiFlag, uint16_t tm) {
             if (pstData->stInPutInfo.uiHumidity > (pstData->stAlarmData.uiHumidityHigh + 500)) {
                 iLevel = ELEMAC_LEVEL_HIGH;
             } else {
-                if (pstData->stInPutInfo.uiHumidity > pstData->stAlarmData.uiHumidityHigh || tm < 180) {
-                    iLevel = ELEMAC_LEVEL_MID;
-                } else {
-                    iLevel = ELEMAC_LEVEL_LOW;
-                }
+                //if (pstData->stInPutInfo.uiHumidity > pstData->stAlarmData.uiHumidityHigh - CON_HUMIDITY_MARGIN || tm < 180) {
+                iLevel = ELEMAC_LEVEL_MID;
+                //} else {
+                //    iLevel = ELEMAC_LEVEL_LOW;
+                //}
             }
         } else if (uiFlag == 2) {
             if (pstData->stInPutInfo.uiHumidity < (pstData->stAlarmData.uiHumidityLow - 500)) {
                 iLevel = ELEMAC_LEVEL_HIGH;
             } else {
-                if (pstData->stInPutInfo.uiHumidity < pstData->stAlarmData.uiHumidityLow) {
+                //if (pstData->stInPutInfo.uiHumidity < pstData->stAlarmData.uiHumidityLow) {
                     iLevel = ELEMAC_LEVEL_MID;
-                } else {
-                    iLevel = ELEMAC_LEVEL_LOW;
-                }
+                //} 
+                //else {
+                //    iLevel = ELEMAC_LEVEL_LOW;
+                //}
             }
         } else if (uiFlag == 3) {
             if (Get_Pm2_5_Level(pstData->stInPutInfo.uiPm2_5) == PM2_5_LEVEL_GOOD) {
@@ -264,7 +267,20 @@ int8_t Get_Ele_LevelByHum(uint8_t uiFlag, uint16_t tm) {
             Debug_Print("level %u->%d, cur humi:%u, high:%u,low:%u", pstData->stOutPutDigit.uiElectricMachinery, iLevel, pstData->stInPutInfo.uiHumidity, pstData->stAlarmData.uiHumidityHigh, pstData->stAlarmData.uiHumidityLow);
         }
     } else {
-        iLevel = pstData->stOutPutEnable.uiElectricMachinery;
+        if (uiFlag == 1) {
+            if(pstData->stOutPutEnable.uiElectricMachinery < ELEMAC_LEVEL_MID)
+            {
+                iLevel = ELEMAC_LEVEL_MID;
+            }
+            else
+            {
+                iLevel = pstData->stOutPutEnable.uiElectricMachinery;
+            }
+        }
+        else
+        {
+            iLevel = pstData->stOutPutEnable.uiElectricMachinery;
+        }
     }
     Data_Get_UnLock();
     return iLevel;
@@ -350,7 +366,10 @@ void Task_thread_entry(void *parameter) {
         enRunMode = Get_Dev_RunMode();
         uiSubStatus = Get_Dev_RunSubStatus();
         if ((uiLoop % 30) == 0) {
-            Debug_Print("------->");
+            pstData = Data_Get_Point();
+
+            Debug_Print("-------> humi[%d] high=%d low=%d\n",pstData->stInPutInfo.uiHumidity, 
+                pstData->stAlarmData.uiHumidityHigh, pstData->stAlarmData.uiHumidityLow);
             Debug_DevCurMode_(enRunMode);
             Debug_DevCurStatus_(enRunStatus);
             Debug_DevCurSubStatus_(uiSubStatus);
@@ -369,9 +388,18 @@ void Task_thread_entry(void *parameter) {
                 /* 温湿度告警，管盘温度告警 暂停 */
                 Data_Get_Lock();
                 pstData = Data_Get_Point();
-                if ((pstData->stDevStatus.uiTemperatureStatus == 1) || (pstData->stDevStatus.uiHumidityStatus == 1) || (pstData->stDevStatus.uiTubeStatus == 1)) {
+                if ((pstData->stDevStatus.uiTemperatureStatus == 1) || (pstData->stDevStatus.uiHumidityStatus == 1) || 
+                    (pstData->stDevStatus.uiTubeStatus == 1) ) {
                     g_dev_run_timecnt = 0;
                     pstData->stDevStatus.uiDevRunSubStatus = DEHUMIDIFICATION_STANDBY_E;
+                    level = ELEMAC_LEVEL_CLOSE;
+                    Debug_fileline
+                }
+                if(pstData->stInPutInfo.uiUpperWaterLevel == 1)
+                {
+                    g_dev_run_timecnt = 0;
+                    pstData->stDevStatus.uiDevRunSubStatus = DEHUMIDIFICATION_WAIT_E;
+                    level = ELEMAC_LEVEL_LOW;
                     Debug_fileline
                 }
                 Data_Get_UnLock();
@@ -379,7 +407,7 @@ void Task_thread_entry(void *parameter) {
                 {
                     case DEHUMIDIFICATION_STANDBY_E:
                         /* 暂停状态，关闭压缩机，关闭风扇 */
-                        Task_Set_DeviceRun(0, 0, WATER_DUMP_CLOSE, -1, -1, ELEMAC_LEVEL_CLOSE, -1, -1);
+                        Task_Set_DeviceRun(0, 0, WATER_DUMP_CLOSE, -1, -1, level, -1, -1);
                         if (g_dev_run_timecnt) {
                             Debug_fileline
                             Set_Dev_RunSubStatus(DEHUMIDIFICATION_WAIT_E);
@@ -460,7 +488,7 @@ void Task_thread_entry(void *parameter) {
                         }
                         #endif
                         /* 压缩机工作时间大于20分钟再判断管盘温度,且判断需连续 3分钟低于化霜启动温度 */
-                        if ((g_dev_run_timecnt > 20 * 60) && 
+                        if ((g_dev_run_timecnt > 20 * 60)  && 
                             (pstData->stInPutInfo.iTubeTemperature < pstData->stAlarmData.iFrostingStartThr) &&
                             (pstData->stInPutInfo.iTubeTemperature < 0)) {
                             g_timecnt++;
@@ -479,7 +507,7 @@ void Task_thread_entry(void *parameter) {
                         }
 
                         /* 工作时间大于3分钟，若湿度低于上限，切回等待模式 */
-                        if ((g_dev_run_timecnt > 3 * 60) && (pstData->stInPutInfo.uiHumidity < pstData->stAlarmData.uiHumidityHigh)) 
+                        if ((g_dev_run_timecnt > 3 * 60) && (pstData->stInPutInfo.uiHumidity < pstData->stAlarmData.uiHumidityHigh - CON_HUMIDITY_MARGIN)) 
                         {
                             s_2low_count++;
                             s_2high_count = 0;
@@ -550,21 +578,7 @@ void Task_thread_entry(void *parameter) {
                     pstData->stDevStatus.uiDevRunSubStatus = HUMIDIFICATION_STANDBY_E;
                     Debug_fileline
                 }
-                /* 当前湿度比下限高 暂停 */
-                if (pstData->stInPutInfo.uiHumidity > pstData->stAlarmData.uiHumidityLow) {
-                    s_2mid_count++;
-                    s_2low_count = 0;    
-                    if(s_2mid_count > CON_HUMI_FILTER)   
-                    {
-                        g_dev_run_timecnt = 0;
-                        pstData->stDevStatus.uiDevRunSubStatus = HUMIDIFICATION_STANDBY_E;
-                        Debug_fileline
-                    }
-                }
-                else
-                {
-                    s_2mid_count = 0;
-                }
+
                 /* 自动模式，且湿度大于设定上限，进入除湿模式 */
                 if ((enRunMode == RUN_MODE_AUTO_E) && (pstData->stInPutInfo.uiHumidity > pstData->stAlarmData.uiHumidityHigh)) {
                     s_2high_count ++;
@@ -588,6 +602,23 @@ void Task_thread_entry(void *parameter) {
                     case HUMIDIFICATION_STANDBY_E:
                         /* 暂停状态，关闭水泵，风扇低速30s后打开水泵 */
                         Task_Set_DeviceRun(0, 0, WATER_DUMP_CLOSE, -1, -1, ELEMAC_LEVEL_LOW, -1, -1);
+                    
+                        /* 当前湿度比下限高 暂停 */
+                        if (pstData->stInPutInfo.uiHumidity > pstData->stAlarmData.uiHumidityLow) {
+                            s_2mid_count++;
+                            s_2low_count = 0;    
+                            if(s_2mid_count > CON_HUMI_FILTER)   
+                            {
+                                g_dev_run_timecnt = 0;
+                                pstData->stDevStatus.uiDevRunSubStatus = HUMIDIFICATION_STANDBY_E;
+                                Debug_fileline
+                            }
+                        }
+                        else
+                        {
+                            s_2mid_count = 0;
+                        }
+                    
                         if (g_dev_run_timecnt > 30) {
                             Set_Dev_RunSubStatus(HUMIDIFICATION_RUN_E);
                             g_timecnt = 0;
@@ -597,6 +628,23 @@ void Task_thread_entry(void *parameter) {
                         break;
                     case HUMIDIFICATION_RUN_E:
                         /* 加湿状态，打开加湿水泵 */
+                    
+                        /* 当前湿度比下限高 暂停 */
+                        if (pstData->stInPutInfo.uiHumidity > pstData->stAlarmData.uiHumidityLow + CON_HUMIDITY_MARGIN) {
+                            s_2mid_count++;
+                            s_2low_count = 0;    
+                            if(s_2mid_count > CON_HUMI_FILTER)   
+                            {
+                                g_dev_run_timecnt = 0;
+                                pstData->stDevStatus.uiDevRunSubStatus = HUMIDIFICATION_STANDBY_E;
+                                Debug_fileline
+                            }
+                        }
+                        else
+                        {
+                            s_2mid_count = 0;
+                        }                    
+                    
                         level = Get_Ele_LevelByHum(2, g_dev_run_timecnt);
                         if (g_timecnt >= 120) {
                             Task_Set_DeviceRun(0, 0, WATER_DUMP_LOW, -1, -1, level, -1, -1);

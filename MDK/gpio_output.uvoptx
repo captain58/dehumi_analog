@@ -152,9 +152,9 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>380</LineNumber>
+          <LineNumber>478</LineNumber>
           <EnabledFlag>0</EnabledFlag>
-          <Address>29680</Address>
+          <Address>30838</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -163,30 +163,14 @@
           <BreakIfRCount>1</BreakIfRCount>
           <Filename>..\source\src\data.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\\../source/src/data.c\380</Expression>
+          <Expression>\\gpio_output\../source/src/data.c\478</Expression>
         </Bp>
         <Bp>
           <Number>1</Number>
           <Type>0</Type>
-          <LineNumber>823</LineNumber>
+          <LineNumber>477</LineNumber>
           <EnabledFlag>0</EnabledFlag>
-          <Address>33578</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>C:\Keil_v5\ARM\PACK\RealThread\RT-Thread\3.1.5\components\finsh\shell.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\gpio_output\C:/Keil_v5/ARM/PACK/RealThread/RT-Thread/3.1.5/components/finsh/shell.c\823</Expression>
-        </Bp>
-        <Bp>
-          <Number>2</Number>
-          <Type>0</Type>
-          <LineNumber>734</LineNumber>
-          <EnabledFlag>0</EnabledFlag>
-          <Address>8644</Address>
+          <Address>30828</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -195,14 +179,110 @@
           <BreakIfRCount>1</BreakIfRCount>
           <Filename>..\source\src\data.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\gpio_output\../source/src/data.c\734</Expression>
+          <Expression>\\gpio_output\../source/src/data.c\477</Expression>
+        </Bp>
+        <Bp>
+          <Number>2</Number>
+          <Type>0</Type>
+          <LineNumber>308</LineNumber>
+          <EnabledFlag>0</EnabledFlag>
+          <Address>17760</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>..\source\src\rs485pro.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\gpio_output\../source/src/rs485pro.c\308</Expression>
         </Bp>
         <Bp>
           <Number>3</Number>
           <Type>0</Type>
+          <LineNumber>482</LineNumber>
+          <EnabledFlag>0</EnabledFlag>
+          <Address>30842</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>..\source\src\data.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\gpio_output\../source/src/data.c\482</Expression>
+        </Bp>
+        <Bp>
+          <Number>4</Number>
+          <Type>0</Type>
+          <LineNumber>805</LineNumber>
+          <EnabledFlag>0</EnabledFlag>
+          <Address>8462</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>..\source\src\data.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\gpio_output\../source/src/data.c\805</Expression>
+        </Bp>
+        <Bp>
+          <Number>5</Number>
+          <Type>0</Type>
+          <LineNumber>820</LineNumber>
+          <EnabledFlag>0</EnabledFlag>
+          <Address>8574</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>..\source\src\data.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\gpio_output\../source/src/data.c\820</Expression>
+        </Bp>
+        <Bp>
+          <Number>6</Number>
+          <Type>0</Type>
+          <LineNumber>824</LineNumber>
+          <EnabledFlag>0</EnabledFlag>
+          <Address>8648</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>..\source\src\data.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\gpio_output\../source/src/data.c\824</Expression>
+        </Bp>
+        <Bp>
+          <Number>7</Number>
+          <Type>0</Type>
+          <LineNumber>300</LineNumber>
+          <EnabledFlag>0</EnabledFlag>
+          <Address>17576</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>..\source\src\rs485pro.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\gpio_output\../source/src/rs485pro.c\300</Expression>
+        </Bp>
+        <Bp>
+          <Number>8</Number>
+          <Type>0</Type>
           <LineNumber>567</LineNumber>
           <EnabledFlag>0</EnabledFlag>
-          <Address>11836</Address>
+          <Address>11920</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -214,11 +294,11 @@
           <Expression>\\gpio_output\../source/src/temp.c\567</Expression>
         </Bp>
         <Bp>
-          <Number>4</Number>
+          <Number>9</Number>
           <Type>0</Type>
           <LineNumber>649</LineNumber>
           <EnabledFlag>0</EnabledFlag>
-          <Address>23366</Address>
+          <Address>23530</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -230,11 +310,11 @@
           <Expression>\\gpio_output\../source/src/temp.c\649</Expression>
         </Bp>
         <Bp>
-          <Number>5</Number>
+          <Number>10</Number>
           <Type>0</Type>
           <LineNumber>574</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>27916</Address>
+          <Address>27958</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -246,26 +326,10 @@
           <Expression>\\gpio_output\../source/src/task.c\574</Expression>
         </Bp>
         <Bp>
-          <Number>6</Number>
+          <Number>11</Number>
           <Type>0</Type>
-          <LineNumber>489</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>27140</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>..\source\src\task.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\gpio_output\../source/src/task.c\489</Expression>
-        </Bp>
-        <Bp>
-          <Number>7</Number>
-          <Type>0</Type>
-          <LineNumber>401</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
+          <LineNumber>415</LineNumber>
+          <EnabledFlag>0</EnabledFlag>
           <Address>0</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
@@ -273,7 +337,119 @@
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>0</BreakIfRCount>
-          <Filename>..\source\src\task.c</Filename>
+          <Filename>..\source\src\data.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression></Expression>
+        </Bp>
+        <Bp>
+          <Number>12</Number>
+          <Type>0</Type>
+          <LineNumber>432</LineNumber>
+          <EnabledFlag>0</EnabledFlag>
+          <Address>0</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>0</BreakIfRCount>
+          <Filename>..\source\src\data.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression></Expression>
+        </Bp>
+        <Bp>
+          <Number>13</Number>
+          <Type>0</Type>
+          <LineNumber>436</LineNumber>
+          <EnabledFlag>0</EnabledFlag>
+          <Address>0</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>0</BreakIfRCount>
+          <Filename>..\source\src\data.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression></Expression>
+        </Bp>
+        <Bp>
+          <Number>14</Number>
+          <Type>0</Type>
+          <LineNumber>788</LineNumber>
+          <EnabledFlag>0</EnabledFlag>
+          <Address>0</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>0</BreakIfRCount>
+          <Filename>..\source\src\data.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression></Expression>
+        </Bp>
+        <Bp>
+          <Number>15</Number>
+          <Type>0</Type>
+          <LineNumber>801</LineNumber>
+          <EnabledFlag>0</EnabledFlag>
+          <Address>0</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>0</BreakIfRCount>
+          <Filename>..\source\src\data.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression></Expression>
+        </Bp>
+        <Bp>
+          <Number>16</Number>
+          <Type>0</Type>
+          <LineNumber>803</LineNumber>
+          <EnabledFlag>0</EnabledFlag>
+          <Address>0</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>0</BreakIfRCount>
+          <Filename>..\source\src\data.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression></Expression>
+        </Bp>
+        <Bp>
+          <Number>17</Number>
+          <Type>0</Type>
+          <LineNumber>807</LineNumber>
+          <EnabledFlag>0</EnabledFlag>
+          <Address>0</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>0</BreakIfRCount>
+          <Filename>..\source\src\data.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression></Expression>
+        </Bp>
+        <Bp>
+          <Number>18</Number>
+          <Type>0</Type>
+          <LineNumber>822</LineNumber>
+          <EnabledFlag>0</EnabledFlag>
+          <Address>0</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>0</BreakIfRCount>
+          <Filename>..\source\src\data.c</Filename>
           <ExecCommand></ExecCommand>
           <Expression></Expression>
         </Bp>
@@ -302,69 +478,142 @@
         <Ww>
           <count>4</count>
           <WinNumber>1</WinNumber>
-          <ItemText>g_Core_Data.stOutPutDigit.uiElectricMachinery</ItemText>
+          <ItemText>stParaCmd.uiElectricMachinery</ItemText>
         </Ww>
         <Ww>
           <count>5</count>
           <WinNumber>1</WinNumber>
-          <ItemText>g_Core_Data</ItemText>
+          <ItemText>pstData-&gt;stDevStatus.uiStoreData</ItemText>
         </Ww>
         <Ww>
           <count>6</count>
           <WinNumber>1</WinNumber>
-          <ItemText>stParaCmd.uiElectricMachinery</ItemText>
+          <ItemText>pstData-&gt;stDevStatus.uiStoreData</ItemText>
         </Ww>
         <Ww>
           <count>7</count>
           <WinNumber>1</WinNumber>
-          <ItemText>pstData-&gt;stDevStatus.uiStoreData</ItemText>
+          <ItemText>g_dev_run_timecnt,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>8</count>
           <WinNumber>1</WinNumber>
-          <ItemText>pstData-&gt;stDevStatus.uiStoreData</ItemText>
+          <ItemText>pstData-&gt;stAlarmData.uiHumidityHigh,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>9</count>
           <WinNumber>1</WinNumber>
-          <ItemText>g_dev_run_timecnt,0x0A</ItemText>
+          <ItemText>uiTemp,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>10</count>
           <WinNumber>1</WinNumber>
-          <ItemText>pstData-&gt;stAlarmData.uiHumidityHigh,0x0A</ItemText>
+          <ItemText>uiDisplayStatus</ItemText>
         </Ww>
         <Ww>
           <count>11</count>
           <WinNumber>1</WinNumber>
-          <ItemText>uiTemp,0x0A</ItemText>
+          <ItemText>s_2high_count</ItemText>
         </Ww>
         <Ww>
           <count>12</count>
           <WinNumber>1</WinNumber>
-          <ItemText>uiDisplayStatus</ItemText>
+          <ItemText>s_2mid_count</ItemText>
         </Ww>
         <Ww>
           <count>13</count>
           <WinNumber>1</WinNumber>
-          <ItemText>s_2high_count</ItemText>
+          <ItemText>s_2low_count</ItemText>
         </Ww>
         <Ww>
           <count>14</count>
           <WinNumber>1</WinNumber>
-          <ItemText>s_2mid_count</ItemText>
+          <ItemText>g_dev_run_timecnt,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>15</count>
           <WinNumber>1</WinNumber>
-          <ItemText>s_2low_count</ItemText>
+          <ItemText>uiRet</ItemText>
         </Ww>
         <Ww>
           <count>16</count>
           <WinNumber>1</WinNumber>
-          <ItemText>g_dev_run_timecnt</ItemText>
+          <ItemText>pstData-&gt;stAlarmData.uiHumidityLow,0x0A</ItemText>
+        </Ww>
+        <Ww>
+          <count>17</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>pstData-&gt;stInPutInfo.uiHumidity,0x0A</ItemText>
+        </Ww>
+        <Ww>
+          <count>18</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>pstData-&gt;stAlarmData.uiHumidityLow,0x0A</ItemText>
+        </Ww>
+        <Ww>
+          <count>19</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>pstData-&gt;stAlarmData.iFrostingStartThr,0x0A</ItemText>
+        </Ww>
+        <Ww>
+          <count>20</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>g_timecnt,0x0A</ItemText>
+        </Ww>
+        <Ww>
+          <count>21</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>g_dev_run_timecnt,0x0A</ItemText>
+        </Ww>
+        <Ww>
+          <count>22</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>uiHumidity,0x0A</ItemText>
+        </Ww>
+        <Ww>
+          <count>23</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>pstData-&gt;stAlarmData.uiHumidityHigh,0x0A</ItemText>
+        </Ww>
+        <Ww>
+          <count>24</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>pstData-&gt;stAlarmData.uiHumidityLow,0x0A</ItemText>
+        </Ww>
+        <Ww>
+          <count>25</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>pcInData[uiIndex++]</ItemText>
+        </Ww>
+        <Ww>
+          <count>26</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>uiIndex,0x0A</ItemText>
+        </Ww>
+        <Ww>
+          <count>27</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>pcInData</ItemText>
+        </Ww>
+        <Ww>
+          <count>28</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>pstData-&gt;stAlarmData.uiPm2_5Correct</ItemText>
+        </Ww>
+        <Ww>
+          <count>29</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>g_Core_Data.stAlarmData</ItemText>
         </Ww>
       </WatchWindow1>
+      <MemoryWindow1>
+        <Mm>
+          <WinNumber>1</WinNumber>
+          <SubType>0</SubType>
+          <ItemText>0x20000438</ItemText>
+          <AccSizeX>0</AccSizeX>
+        </Mm>
+      </MemoryWindow1>
       <Tracepoint>
         <THDelay>0</THDelay>
       </Tracepoint>

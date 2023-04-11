@@ -90,6 +90,7 @@ void Rs485_Pro_GetU8DataByFloat(uint8_t *pcData, int32_t ivalue) {
     }
 
     fdata.fvalue = (float)ivalue / 100;
+
     pcData[0] = fdata.szdata[3];
     pcData[1] = fdata.szdata[2];
     pcData[2] = fdata.szdata[1];
@@ -186,7 +187,7 @@ uint8_t Rs485_Pro_TaskCmd2(uint8_t *pcInData, uint8_t uiInlen, uint8_t *pcOutDat
 uint8_t Rs485_Pro_TaskCmd3(uint8_t *pcInData, uint8_t uiInlen, uint8_t *pcOutData, uint8_t uiOutlen) {
     CORE_DATA_S *pstData = NULL;
     uint8_t uiIndex = 0;
-
+//    static int32_t iTemperature;
     if (uiOutlen < 40) {
         Debug_Print("Rs485_Pro_TaskCmd3 failed! uiOutlen:%u", uiOutlen);
         return 0;
@@ -197,7 +198,7 @@ uint8_t Rs485_Pro_TaskCmd3(uint8_t *pcInData, uint8_t uiInlen, uint8_t *pcOutDat
     pcOutData[uiIndex++] = 0;
     pcOutData[uiIndex++] = 0x3;
 
-    uint8_t uiDisplayStatus = Get_DevStatusForDisplay();
+    uint8_t uiDisplayStatus = Get_DevStatusForShow();//Get_DevStatusForDisplay();
     Data_Get_Lock();
     pstData = Data_Get_Point();
     pcOutData[uiIndex++] = uiDisplayStatus;
@@ -214,7 +215,9 @@ uint8_t Rs485_Pro_TaskCmd3(uint8_t *pcInData, uint8_t uiInlen, uint8_t *pcOutDat
     pcOutData[uiIndex++] = uiHumidity >> 8;
     pcOutData[uiIndex++] = uiHumidity & 0xff;
     Rs485_Pro_GetU8DataByFloat(&pcOutData[uiIndex], pstData->stInPutInfo.iTubeTemperature);
+    //Rs485_Pro_GetU8DataByFloat(&pcOutData[uiIndex], iTemperature);
     uiIndex += 4;
+
     if (pstData->stAlarmData.uiPm2_5Correct == 0) {
         pcOutData[uiIndex++] = Get_Pm2_5_Level(pstData->stInPutInfo.uiPm2_5);
         pcOutData[uiIndex++] = Get_CO2_Level(pstData->stInPutInfo.uiPm2_5);
@@ -224,20 +227,20 @@ uint8_t Rs485_Pro_TaskCmd3(uint8_t *pcInData, uint8_t uiInlen, uint8_t *pcOutDat
         pcOutData[uiIndex++] = pstData->stAlarmData.uiPm2_5Correct;
         pcOutData[uiIndex++] = pstData->stAlarmData.uiPm2_5Correct;
     }
-    pcOutData[uiIndex++] = pstData->stOutPutDigit.uiCompressor;
-    if (pstData->stOutPutDigit.uiWaterPump == WATER_DUMP_CLOSE) {
+    pcOutData[uiIndex++] = pstData->stOutPutDigit.uiCompressor;//压缩机状态
+    if (pstData->stOutPutDigit.uiWaterPump == WATER_DUMP_CLOSE) {//加湿泵状态
         pcOutData[uiIndex++] = 0;
     } else {
         pcOutData[uiIndex++] = 1;
     }
-    pcOutData[uiIndex++] = pstData->stOutPutDigit.uiUVLamp;
-    pcOutData[uiIndex++] = pstData->stOutPutDigit.uiAnion;
-    pcOutData[uiIndex++] = pstData->stOutPutDigit.uiElectricMachinery;
-    pcOutData[uiIndex++] = pstData->stOutPutDigit.uiOzone;
-    pcOutData[uiIndex++] = pstData->stOutPutDigit.uiBaiYeFengJi;
-    pcOutData[uiIndex++] = pstData->stDevStatus.uiComPreasure;
-    pcOutData[uiIndex++] = pstData->stDevStatus.uiTubeStatus;
-    pcOutData[uiIndex++] = pstData->stDevStatus.uiTemperatureStatus;
+    pcOutData[uiIndex++] = pstData->stOutPutDigit.uiUVLamp;//紫外灯状态
+    pcOutData[uiIndex++] = pstData->stOutPutDigit.uiAnion;//负离子状态
+    pcOutData[uiIndex++] = pstData->stOutPutDigit.uiElectricMachinery;//电机状态
+    pcOutData[uiIndex++] = pstData->stOutPutDigit.uiOzone;//臭氧状态
+    pcOutData[uiIndex++] = pstData->stOutPutDigit.uiBaiYeFengJi;//百叶风机
+    pcOutData[uiIndex++] = pstData->stDevStatus.uiComPreasure;//压缩机压力报警
+    pcOutData[uiIndex++] = pstData->stDevStatus.uiTubeStatus;//盘管传感器异常
+    pcOutData[uiIndex++] = pstData->stDevStatus.uiTemperatureStatus;//环温传感器异常
     pcOutData[uiIndex++] = pstData->stDevStatus.uiHumidityStatus;
     pcOutData[uiIndex++] = pstData->stDevStatus.uiFanStatus;
     pcOutData[uiIndex++] = pstData->stInPutInfo.uiUpperWaterLevel;
@@ -252,6 +255,13 @@ uint8_t Rs485_Pro_TaskCmd3(uint8_t *pcInData, uint8_t uiInlen, uint8_t *pcOutDat
 //	    if (pstData->stDevStatus.uiStoreData) {
 //	        pstData->stDevStatus.uiStoreData = 0;
 //	    }
+    uiHumidity = pstData->stAlarmData.uiHumidityHigh;
+    pcOutData[uiIndex++] = uiHumidity >> 8;
+    pcOutData[uiIndex++] = uiHumidity & 0xff;
+    uiHumidity = pstData->stAlarmData.uiHumidityLow;
+    pcOutData[uiIndex++] = uiHumidity >> 8;
+    pcOutData[uiIndex++] = uiHumidity & 0xff;    
+
     Data_Get_UnLock();
     pcOutData[2] = uiIndex - 1;
     pcOutData[uiIndex++] = Rs485_Pro_Crc8Check(&pcOutData[2], pcOutData[2]-1);

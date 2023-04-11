@@ -29,6 +29,17 @@ typedef enum run_status {
     RUN_STATUS_HUMIDIFICATION_WAITING,      /* 等待加湿 */
 }RUN_STATUS_E;
 
+typedef enum run_show {
+    RUN_SHOW_AUOT = 0,                    /* 自动 */
+    RUN_SHOW_DEHUMIDIFICATION_ING,        /* 正在除湿 */
+    RUN_SHOW_HUMIDIFICATION_ING,          /* 正在加湿 */
+    RUN_SHOW_PURIFY_ING,                  /* 正在净化 */
+    RUN_SHOW_DEFROST,             /* 正在化霜 */    
+    RUN_SHOW_STANDBY,                     /* 待机 */
+    RUN_SHOW_STOP,                        /* 停机 */
+
+}RUN_SHOW_E;
+
 /* 除湿状态子状态 */
 typedef enum dehumidification_status {
     DEHUMIDIFICATION_STANDBY_E = 1,        /* 暂停模式 */
