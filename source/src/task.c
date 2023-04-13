@@ -395,7 +395,7 @@ void Task_thread_entry(void *parameter) {
                     level = ELEMAC_LEVEL_CLOSE;
                     Debug_fileline
                 }
-                if(pstData->stInPutInfo.uiUpperWaterLevel == 1)
+                if(pstData->stInPutInfo.uiUpperWaterLevel == 1 || pstData->stDevStatus.uiComPreasure == 1)
                 {
                     g_dev_run_timecnt = 0;
                     pstData->stDevStatus.uiDevRunSubStatus = DEHUMIDIFICATION_WAIT_E;

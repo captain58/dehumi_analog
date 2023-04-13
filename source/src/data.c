@@ -558,8 +558,12 @@ void Check_Alarm_StopDevice(void) {
         Set_Dev_RunMode(RUN_MODE_STOP_E);
     }
 }
-#define CON_UNDER_COMPRESS_MAX 180
-#define CON_TEMP_HUMI_ERR_MAX 60
+#define CON_UNDER_COMPRESS_MAX 600
+#ifdef DEHUMI_DIGIT
+#define CON_TEMP_HUMI_ERR_MAX 150
+#else
+#define CON_TEMP_HUMI_ERR_MAX 600
+#endif
 void Coredata_thread_entry(void *parameter) {
     int16_t iTubeTemperature;
     int16_t iTemperature=0;
@@ -568,7 +572,8 @@ void Coredata_thread_entry(void *parameter) {
     uint16_t ui_compressor_under_count = 0;
     uint8_t uiCompressorPressure;
     uint16_t ui_temp_humi_err_count = 0;
-    uint8_t ui_temp_humi_err;
+    uint16_t ui_tub_err_count = 0;
+    uint8_t uc_err_stt;
     while (TRUE) {
         uiLoop++;
         if (Sync_TempHum(&iTemperature, &uiHumidity) && (iTemperature > -3000)) {
@@ -612,10 +617,22 @@ void Coredata_thread_entry(void *parameter) {
             Data_Get_Lock();
             g_Core_Data.stInPutInfo.iTubeTemperature = iTubeTemperature + g_Core_Data.stAlarmData.iTubeTemperCorrect;
             g_Core_Data.stDevStatus.uiTubeStatus = 0;
+            ui_tub_err_count = 0;
             Data_Get_UnLock();
         } else {
             Data_Get_Lock();
-            g_Core_Data.stDevStatus.uiTubeStatus = 1;
+            //g_Core_Data.stDevStatus.uiTubeStatus = 1;
+            //uc_err_stt  = 1;
+            ui_tub_err_count++;
+            if(ui_tub_err_count >= CON_UNDER_COMPRESS_MAX)
+            {
+                g_Core_Data.stDevStatus.uiTubeStatus = 1;
+                
+                if(ui_tub_err_count > 0x8000)
+                    ui_tub_err_count = CON_UNDER_COMPRESS_MAX;
+            }
+            else
+                g_Core_Data.stDevStatus.uiTubeStatus = 0;
             Data_Get_UnLock();
             Debug_Print(">>>Bsp_Adc_Start: failed\n");
         }

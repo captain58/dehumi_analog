@@ -152,9 +152,9 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>478</LineNumber>
+          <LineNumber>839</LineNumber>
           <EnabledFlag>0</EnabledFlag>
-          <Address>30838</Address>
+          <Address>8648</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -163,14 +163,14 @@
           <BreakIfRCount>1</BreakIfRCount>
           <Filename>..\source\src\data.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\gpio_output\../source/src/data.c\478</Expression>
+          <Expression>\\gpio_output\../source/src/data.c\839</Expression>
         </Bp>
         <Bp>
           <Number>1</Number>
           <Type>0</Type>
-          <LineNumber>477</LineNumber>
+          <LineNumber>835</LineNumber>
           <EnabledFlag>0</EnabledFlag>
-          <Address>30828</Address>
+          <Address>8574</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -179,14 +179,14 @@
           <BreakIfRCount>1</BreakIfRCount>
           <Filename>..\source\src\data.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\gpio_output\../source/src/data.c\477</Expression>
+          <Expression>\\gpio_output\../source/src/data.c\835</Expression>
         </Bp>
         <Bp>
           <Number>2</Number>
           <Type>0</Type>
           <LineNumber>308</LineNumber>
           <EnabledFlag>0</EnabledFlag>
-          <Address>17760</Address>
+          <Address>17820</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -202,7 +202,7 @@
           <Type>0</Type>
           <LineNumber>482</LineNumber>
           <EnabledFlag>0</EnabledFlag>
-          <Address>30842</Address>
+          <Address>30910</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -216,25 +216,9 @@
         <Bp>
           <Number>4</Number>
           <Type>0</Type>
-          <LineNumber>805</LineNumber>
-          <EnabledFlag>0</EnabledFlag>
-          <Address>8462</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>..\source\src\data.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\gpio_output\../source/src/data.c\805</Expression>
-        </Bp>
-        <Bp>
-          <Number>5</Number>
-          <Type>0</Type>
           <LineNumber>820</LineNumber>
           <EnabledFlag>0</EnabledFlag>
-          <Address>8574</Address>
+          <Address>8462</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -246,11 +230,11 @@
           <Expression>\\gpio_output\../source/src/data.c\820</Expression>
         </Bp>
         <Bp>
-          <Number>6</Number>
+          <Number>5</Number>
           <Type>0</Type>
           <LineNumber>824</LineNumber>
           <EnabledFlag>0</EnabledFlag>
-          <Address>8648</Address>
+          <Address>8546</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -262,11 +246,11 @@
           <Expression>\\gpio_output\../source/src/data.c\824</Expression>
         </Bp>
         <Bp>
-          <Number>7</Number>
+          <Number>6</Number>
           <Type>0</Type>
           <LineNumber>300</LineNumber>
           <EnabledFlag>0</EnabledFlag>
-          <Address>17576</Address>
+          <Address>17636</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -278,11 +262,11 @@
           <Expression>\\gpio_output\../source/src/rs485pro.c\300</Expression>
         </Bp>
         <Bp>
-          <Number>8</Number>
+          <Number>7</Number>
           <Type>0</Type>
           <LineNumber>567</LineNumber>
           <EnabledFlag>0</EnabledFlag>
-          <Address>11920</Address>
+          <Address>11980</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -294,11 +278,11 @@
           <Expression>\\gpio_output\../source/src/temp.c\567</Expression>
         </Bp>
         <Bp>
-          <Number>9</Number>
+          <Number>8</Number>
           <Type>0</Type>
           <LineNumber>649</LineNumber>
           <EnabledFlag>0</EnabledFlag>
-          <Address>23530</Address>
+          <Address>23590</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -310,23 +294,7 @@
           <Expression>\\gpio_output\../source/src/temp.c\649</Expression>
         </Bp>
         <Bp>
-          <Number>10</Number>
-          <Type>0</Type>
-          <LineNumber>574</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>27958</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>..\source\src\task.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\gpio_output\../source/src/task.c\574</Expression>
-        </Bp>
-        <Bp>
-          <Number>11</Number>
+          <Number>9</Number>
           <Type>0</Type>
           <LineNumber>415</LineNumber>
           <EnabledFlag>0</EnabledFlag>
@@ -342,7 +310,7 @@
           <Expression></Expression>
         </Bp>
         <Bp>
-          <Number>12</Number>
+          <Number>10</Number>
           <Type>0</Type>
           <LineNumber>432</LineNumber>
           <EnabledFlag>0</EnabledFlag>
@@ -358,7 +326,7 @@
           <Expression></Expression>
         </Bp>
         <Bp>
-          <Number>13</Number>
+          <Number>11</Number>
           <Type>0</Type>
           <LineNumber>436</LineNumber>
           <EnabledFlag>0</EnabledFlag>
@@ -374,39 +342,39 @@
           <Expression></Expression>
         </Bp>
         <Bp>
+          <Number>12</Number>
+          <Type>0</Type>
+          <LineNumber>477</LineNumber>
+          <EnabledFlag>0</EnabledFlag>
+          <Address>0</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>0</BreakIfRCount>
+          <Filename>..\source\src\data.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression></Expression>
+        </Bp>
+        <Bp>
+          <Number>13</Number>
+          <Type>0</Type>
+          <LineNumber>478</LineNumber>
+          <EnabledFlag>0</EnabledFlag>
+          <Address>0</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>0</BreakIfRCount>
+          <Filename>..\source\src\data.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression></Expression>
+        </Bp>
+        <Bp>
           <Number>14</Number>
-          <Type>0</Type>
-          <LineNumber>788</LineNumber>
-          <EnabledFlag>0</EnabledFlag>
-          <Address>0</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>0</BreakIfRCount>
-          <Filename>..\source\src\data.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression></Expression>
-        </Bp>
-        <Bp>
-          <Number>15</Number>
-          <Type>0</Type>
-          <LineNumber>801</LineNumber>
-          <EnabledFlag>0</EnabledFlag>
-          <Address>0</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>0</BreakIfRCount>
-          <Filename>..\source\src\data.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression></Expression>
-        </Bp>
-        <Bp>
-          <Number>16</Number>
           <Type>0</Type>
           <LineNumber>803</LineNumber>
           <EnabledFlag>0</EnabledFlag>
@@ -422,9 +390,41 @@
           <Expression></Expression>
         </Bp>
         <Bp>
+          <Number>15</Number>
+          <Type>0</Type>
+          <LineNumber>805</LineNumber>
+          <EnabledFlag>0</EnabledFlag>
+          <Address>0</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>0</BreakIfRCount>
+          <Filename>..\source\src\data.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression></Expression>
+        </Bp>
+        <Bp>
+          <Number>16</Number>
+          <Type>0</Type>
+          <LineNumber>816</LineNumber>
+          <EnabledFlag>0</EnabledFlag>
+          <Address>0</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>0</BreakIfRCount>
+          <Filename>..\source\src\data.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression></Expression>
+        </Bp>
+        <Bp>
           <Number>17</Number>
           <Type>0</Type>
-          <LineNumber>807</LineNumber>
+          <LineNumber>818</LineNumber>
           <EnabledFlag>0</EnabledFlag>
           <Address>0</Address>
           <ByteObject>0</ByteObject>
@@ -441,6 +441,22 @@
           <Number>18</Number>
           <Type>0</Type>
           <LineNumber>822</LineNumber>
+          <EnabledFlag>0</EnabledFlag>
+          <Address>0</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>0</BreakIfRCount>
+          <Filename>..\source\src\data.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression></Expression>
+        </Bp>
+        <Bp>
+          <Number>19</Number>
+          <Type>0</Type>
+          <LineNumber>837</LineNumber>
           <EnabledFlag>0</EnabledFlag>
           <Address>0</Address>
           <ByteObject>0</ByteObject>
@@ -604,6 +620,11 @@
           <count>29</count>
           <WinNumber>1</WinNumber>
           <ItemText>g_Core_Data.stAlarmData</ItemText>
+        </Ww>
+        <Ww>
+          <count>30</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>iTubeTemperature</ItemText>
         </Ww>
       </WatchWindow1>
       <MemoryWindow1>
