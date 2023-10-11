@@ -519,7 +519,7 @@ void Pm2_5_thread_entry(void *parameter) {
         rt_thread_mdelay(1000);
     }
 }
-
+uint8_t guc_comm_err_flg = 0;
 /* 判断告警以及是否需要停机 */
 void Check_Alarm_StopDevice(void) {
     uint8_t uiRet = 0;
@@ -547,7 +547,11 @@ void Check_Alarm_StopDevice(void) {
     }
     
     /* 温湿度传感器持续3分钟无法获取数据，停机 */
-    if (g_Core_Data.stDevStatus.uiStopTemperCnt > 3 * 60) {
+//    if (g_Core_Data.stDevStatus.uiStopTemperCnt > 3 * 60) {
+//        uiRet = 1;
+//    }
+    if(guc_comm_err_flg)
+    {
         uiRet = 1;
     }
     Data_Get_UnLock();
@@ -564,6 +568,7 @@ void Check_Alarm_StopDevice(void) {
 #else
 #define CON_TEMP_HUMI_ERR_MAX 600
 #endif
+extern uint32_t gul_comm_count;
 void Coredata_thread_entry(void *parameter) {
     int16_t iTubeTemperature;
     int16_t iTemperature=0;
@@ -702,6 +707,16 @@ void Coredata_thread_entry(void *parameter) {
         // }
 
         /* 判断是否需要停机 */
+        gul_comm_count++;
+        if(gul_comm_count > CON_UNDER_COMPRESS_MAX * 3)
+        {
+            guc_comm_err_flg = 1;
+        }
+        else
+        {
+            guc_comm_err_flg = 0;
+        }
+        
         Check_Alarm_StopDevice();
 
         rt_thread_mdelay(1000);
@@ -726,8 +741,8 @@ void CoreData_Default_Init(void) {
     g_Core_Data.stAlarmData.iHumidityCorrect = 0;       /* 不修正 */
     g_Core_Data.stAlarmData.uiTimOpenCloseFlag = 0;       /* 定时开关机默认关闭 */
     g_Core_Data.stAlarmData.uiTimOpenCloseMap = 0;       /* 定时开关机默认关闭 */
-    g_Core_Data.stAlarmData.uiHumidityLow = 5000;       /* 湿度下限 40% */
-    g_Core_Data.stAlarmData.uiHumidityHigh = 6000;      /* 湿度上限 60% */
+    g_Core_Data.stAlarmData.uiHumidityLow = 4000;       /* 湿度下限 40% */
+    g_Core_Data.stAlarmData.uiHumidityHigh = 5000;      /* 湿度上限 60% */
     g_Core_Data.stAlarmData.uiDehumiTime = 20;      /* 压缩机启动时间 */
     g_Core_Data.stAlarmData.uiDehumiTimeDelay = 10; /* 压缩机休息时间  */
     g_Core_Data.stAlarmData.iFrostingStartThr = -100;       /* 化霜开始时间 -1° */

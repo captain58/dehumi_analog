@@ -527,6 +527,8 @@ uint8_t Rs485_Pro_TaskCmd9(uint8_t *pcInData, uint8_t uiInlen, uint8_t *pcOutDat
     uiOutlen   返回数据最大缓存
     return   返回数据实际长度
  */
+uint32_t gul_comm_count = 0;
+extern uint8_t guc_comm_err_flg;
 uint8_t Rs485_Pro_Task(uint8_t *pcInData, uint8_t uiInlen, uint8_t *pcOutData, uint8_t uiOutlen) {
     uint8_t uiCmd;
     uint8_t uiResult = 0;
@@ -534,7 +536,8 @@ uint8_t Rs485_Pro_Task(uint8_t *pcInData, uint8_t uiInlen, uint8_t *pcOutData, u
     if (uiInlen < 7) {
         return 0;
     }
-
+    gul_comm_count = 0;
+    guc_comm_err_flg = 0;
     g_Rs485OnlineLastTime = rt_tick_get();
 
     uiCmd = pcInData[3];
