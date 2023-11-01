@@ -2,9 +2,10 @@
 #define __SRC_MAIN_H__
 #include <rtthread.h>
 #include "bsp/bsp_wdt.h"
-#define MAJOR_VER       "v0.0."
-#define MINOR_VER       "61"
-#define SPECIAL_VER     "-chr07"
+#include "config.h"
+//#define MAJOR_VER       "v0.0."
+//#define MINOR_VER       "65"
+//#define SPECIAL_VER     "-CHR"
 
 /* 打印缓存 */
 extern char g_cPrintTmp[100];

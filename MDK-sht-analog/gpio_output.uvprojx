@@ -15,16 +15,16 @@
       <uAC6>0</uAC6>
       <TargetOption>
         <TargetCommonOption>
-          <Device>HC32L130J8TA</Device>
+          <Device>HC32L136J8TA</Device>
           <Vendor>HDSC</Vendor>
           <PackID>HDSC.HC32L13x.1.0.0</PackID>
           <PackURL>https://raw.githubusercontent.com/hdscmcu/pack/master/</PackURL>
           <Cpu>IRAM(0x20000000,0x2000) IROM(0x00000000,0x10000) CPUTYPE("Cortex-M0+") CLOCK(12000000) ELITTLE</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
           <StartupFile></StartupFile>
-          <FlashDriverDll>UL2CM3(-S0 -C0 -P0 -FD20000000 -FC1000 -FN1 -FF0HC32L13x_64KB -FS00 -FL010000 -FP0($$Device:HC32L130J8TA$Flash\HC32L13x_64KB.FLM))</FlashDriverDll>
+          <FlashDriverDll>UL2CM3(-S0 -C0 -P0 -FD20000000 -FC1000 -FN1 -FF0FlashHC32L136_64K -FS00 -FL010000 -FP0($$Device:HC32L136J8TA$Flash\FlashHC32L136_64K.FLM))</FlashDriverDll>
           <DeviceId>0</DeviceId>
-          <RegisterFile>$$Device:HC32L130J8TA$Device\Include\HC32L130J8TA.h</RegisterFile>
+          <RegisterFile>$$Device:HC32L136J8TA$Device\Include\HC32L136J8TA.h</RegisterFile>
           <MemoryEnv></MemoryEnv>
           <Cmp></Cmp>
           <Asm></Asm>
@@ -34,8 +34,8 @@
           <SLE66CMisc></SLE66CMisc>
           <SLE66AMisc></SLE66AMisc>
           <SLE66LinkerMisc></SLE66LinkerMisc>
-          <SFDFile>$$Device:HC32L130J8TA$SVD\HC32L130J8TA.sfr</SFDFile>
-          <bCustSvd>0</bCustSvd>
+          <SFDFile>$$Device:HC32L136J8TA$SVD\HC32L136J8TA.sfr</SFDFile>
+          <bCustSvd>1</bCustSvd>
           <UseEnv>0</UseEnv>
           <BinPath></BinPath>
           <IncludePath></IncludePath>
@@ -83,7 +83,7 @@
           <AfterMake>
             <RunUserProg1>1</RunUserProg1>
             <RunUserProg2>0</RunUserProg2>
-            <UserProg1Name>C:\Keil_v5\ARM\ARMCC\bin\fromelf.exe --bin --output=V0.0.65-chrAC08.bin output\release\gpio_output.axf</UserProg1Name>
+            <UserProg1Name>C:\Keil_v5\ARM\ARMCC\bin\fromelf.exe --bin --output=V0.0.64-shd30-xian.bin output\release\gpio_output.axf</UserProg1Name>
             <UserProg2Name></UserProg2Name>
             <UserProg1Dos16Mode>0</UserProg1Dos16Mode>
             <UserProg2Dos16Mode>0</UserProg2Dos16Mode>
@@ -160,7 +160,7 @@
             <ldmm>1</ldmm>
             <ldXref>1</ldXref>
             <BigEnd>0</BigEnd>
-            <AdsALst>0</AdsALst>
+            <AdsALst>1</AdsALst>
             <AdsACrf>0</AdsACrf>
             <AdsANop>0</AdsANop>
             <AdsANot>0</AdsANot>
@@ -173,8 +173,8 @@
             <AdsLsun>0</AdsLsun>
             <AdsLven>0</AdsLven>
             <AdsLsxf>0</AdsLsxf>
-            <RvctClst>0</RvctClst>
-            <GenPPlst>0</GenPPlst>
+            <RvctClst>1</RvctClst>
+            <GenPPlst>1</GenPPlst>
             <AdsCpuType>"Cortex-M0+"</AdsCpuType>
             <RvctDeviceName></RvctDeviceName>
             <mOS>0</mOS>
@@ -337,9 +337,9 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define></Define>
+              <Define>DEHUMI_DIGIT</Define>
               <Undefine></Undefine>
-              <IncludePath>..\common;..\source;..\driver\inc;..\bsp</IncludePath>
+              <IncludePath>..\common;..\source;..\driver\inc;..\bsp;.\</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -414,6 +414,11 @@
               <FilePath>..\source\src\rs485pro.c</FilePath>
             </File>
             <File>
+              <FileName>sht30.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\source\src\sht30.c</FilePath>
+            </File>
+            <File>
               <FileName>data.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\source\src\data.c</FilePath>
@@ -427,11 +432,6 @@
               <FileName>task.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\source\src\task.c</FilePath>
-            </File>
-            <File>
-              <FileName>temp.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\source\src\temp.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -552,6 +552,11 @@
               <FileName>bsp_wdt.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\source\bsp\bsp_wdt.c</FilePath>
+            </File>
+            <File>
+              <FileName>bsp_i2c.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\source\bsp\bsp_i2c.c</FilePath>
             </File>
             <File>
               <FileName>bsp_flash.c</FileName>

@@ -34,14 +34,14 @@ void Tim3_IRQHandler(void)
         for (int i = 0; i < BSP_PWM_INDEX_MAX; i++) {
             if (g_uiPwmStatus[i] == 1) {
                 g_uiHighCnt[i]++;
-                if (g_uiHighCnt[i] >= g_uiHighTime[i]) {
+                if (g_uiHighCnt[i] >= g_uiHighTime[i] && g_uiLowTime[i] > 0) {
                     Bsp_Pwm_SetStatus(i, 0);
                     g_uiHighCnt[i] = 0;
                     g_uiPwmStatus[i] = 2;
                 }
             } else if (g_uiPwmStatus[i] == 2) {
                 g_uiLowCnt[i]++;
-                if (g_uiLowCnt[i] >= g_uiLowTime[i]) {
+                if (g_uiLowCnt[i] >= g_uiLowTime[i] && g_uiHighTime[i] > 0) {
                     Bsp_Pwm_SetStatus(i, 1);
                     g_uiLowCnt[i] = 0;
                     g_uiPwmStatus[i] = 1;
@@ -141,10 +141,28 @@ uint32_t Bsp_Timer_Sub(uint32_t time1, uint32_t time2) {
 /* 设置pwm开关 ELEMAC_LEVEL_E */
 void Bsp_Timer_PwmEnable(uint8_t uiIndex, uint8_t uiLevel) {
     if (uiIndex == BSP_PWM_FENGSHAN) {
+
+#if CON_AC_MOTOR > 0
+        if (uiLevel == ELEMAC_LEVEL_CLOSE) {
+            g_uiPwmStatus[uiIndex] = 0;
+            Bsp_Pwm_SetStatus(uiIndex, 0);
+        }        
+        else if (uiLevel == ELEMAC_LEVEL_LOW) {
+            g_uiPwmStatus[uiIndex] = 2;
+            Bsp_Timer_Pwm_SetPara(uiIndex, 100, 0);
+        } else if (uiLevel == ELEMAC_LEVEL_MID) {
+            g_uiPwmStatus[uiIndex] = 2;
+            Bsp_Timer_Pwm_SetPara(uiIndex, 100, 0);
+        } else if (uiLevel == ELEMAC_LEVEL_HIGH) {
+            g_uiPwmStatus[uiIndex] = 2;
+            Bsp_Timer_Pwm_SetPara(uiIndex, 100, 0);
+        }        
+#else      
         if (uiLevel == ELEMAC_LEVEL_CLOSE) {
             g_uiPwmStatus[uiIndex] = 0;
             Bsp_Pwm_SetStatus(uiIndex, 1);
-        } else if (uiLevel == ELEMAC_LEVEL_LOW) {
+        }
+        else if (uiLevel == ELEMAC_LEVEL_LOW) {
             g_uiPwmStatus[uiIndex] = 1;
             Bsp_Timer_Pwm_SetPara(uiIndex, 90, 10);
         } else if (uiLevel == ELEMAC_LEVEL_MID) {
@@ -154,6 +172,11 @@ void Bsp_Timer_PwmEnable(uint8_t uiIndex, uint8_t uiLevel) {
             g_uiPwmStatus[uiIndex] = 1;
             Bsp_Timer_Pwm_SetPara(uiIndex, 20, 80);
         }
+#endif        
+//        else if (uiLevel == ELEMAC_LEVEL_ON) {
+//            g_uiPwmStatus[uiIndex] = 1;
+//            Bsp_Timer_Pwm_SetPara(uiIndex, 100, 0);
+//        }        
     } else if (uiIndex == BSP_PWM_WATERPUMP) {
 #ifdef __USE_WATERDUMP_GPIO__
         if (uiLevel != WATER_DUMP_CLOSE) {

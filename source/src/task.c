@@ -507,8 +507,9 @@ void Task_thread_entry(void *parameter) {
                             continue;
                         }
 
-                        /* 工作时间大于3分钟，若湿度低于上限，切回等待模式 */
-                        if ((g_dev_run_timecnt > 3 * 60) && (pstData->stInPutInfo.uiHumidity < pstData->stAlarmData.uiHumidityHigh - CON_HUMIDITY_MARGIN)) 
+                        /* 工作时间大于3分钟，若湿度低于上限，切回等待模式 (pstData->stAlarmData.uiHumidityLow + pstData->stAlarmData.uiHumidityHigh)/2*/
+                        //if ((g_dev_run_timecnt > 3 * 60) && (pstData->stInPutInfo.uiHumidity < pstData->stAlarmData.uiHumidityHigh - CON_HUMIDITY_MARGIN)) 
+                        if ((g_dev_run_timecnt > 3 * 60) && (pstData->stInPutInfo.uiHumidity < (pstData->stAlarmData.uiHumidityLow + pstData->stAlarmData.uiHumidityHigh)/2)) 
                         {
                             s_2low_count++;
                             s_2high_count = 0;
@@ -631,7 +632,9 @@ void Task_thread_entry(void *parameter) {
                         /* 加湿状态，打开加湿水泵 */
                     
                         /* 当前湿度比下限高 暂停 */
-                        if (pstData->stInPutInfo.uiHumidity > pstData->stAlarmData.uiHumidityLow + CON_HUMIDITY_MARGIN) {
+                        //if (pstData->stInPutInfo.uiHumidity > pstData->stAlarmData.uiHumidityLow + CON_HUMIDITY_MARGIN) 
+                        if (pstData->stInPutInfo.uiHumidity > (pstData->stAlarmData.uiHumidityLow + pstData->stAlarmData.uiHumidityHigh)/2) 
+                        {
                             s_2mid_count++;
                             s_2low_count = 0;    
                             if(s_2mid_count > CON_HUMI_FILTER)   
