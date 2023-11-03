@@ -14,11 +14,11 @@ void App_PortCfg(void)
     stcGpioCfg.enPu = GpioPuEnable;                          ///< 端口上拉配置->使能
     stcGpioCfg.enPd = GpioPdDisable;                         ///< 端口下拉配置->禁止
     
-    Gpio_Init(GpioPortB,GpioPin13,&stcGpioCfg);               ///< 端口初始化
-    Gpio_Init(GpioPortB,GpioPin14,&stcGpioCfg);
-    
-    Gpio_SetAfMode(GpioPortB,GpioPin13,GpioAf2);              ///< 配置PB08为SCL
-    Gpio_SetAfMode(GpioPortB,GpioPin14,GpioAf2);              ///< 配置PB09为SDA
+//    Gpio_Init(GpioPortB,GpioPin13,&stcGpioCfg);               ///< 端口初始化
+//    Gpio_Init(GpioPortB,GpioPin14,&stcGpioCfg);
+//    
+//    Gpio_SetAfMode(GpioPortB,GpioPin13,GpioAf2);              ///< 配置PB08为SCL
+//    Gpio_SetAfMode(GpioPortB,GpioPin14,GpioAf2);              ///< 配置PB09为SDA
 }
 
 ///< I2C 模块配置

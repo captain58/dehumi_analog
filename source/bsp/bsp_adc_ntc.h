@@ -4,22 +4,10 @@
 #include "adc.h"
 #include "gpio.h"
 #include "bgr.h"
+#include "config.h"
 #include <rtthread.h>
 
-/* 管盘温度adc */
-#define BSP_ADC_NTC_GPIO            (GpioPortA)
-#define BSP_ADC_NTC_PIN             (GpioPin0)
-#define BSP_ADC_NTC_CHANAL          (AdcExInputCH0)
 
-/* 温度adc */
-#define BSP_ADC_TEMP_GPIO            (GpioPortB)
-#define BSP_ADC_TEMP_PIN             (GpioPin10)
-#define BSP_ADC_TEMP_CHANAL          (AdcExInputCH17)
-
-/* 湿度adc */
-#define BSP_ADC_HUMP_GPIO            (GpioPortB)
-#define BSP_ADC_HUMP_PIN             (GpioPin11)
-#define BSP_ADC_HUMP_CHANAL          (AdcExInputCH18)
 
 #define BSP_ADC_NTC_USE_10K
 

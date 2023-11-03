@@ -54,13 +54,7 @@
 #define   LED_GPIO                (GpioPortD)
 #define   LED_PIN                 (GpioPin7)
 
-/* RH_IO1 */
-#define   RH_IO1_GPIO                (GpioPortB)
-#define   RH_IO1_PIN                 (GpioPin13)
 
-/* RH_IO2 */
-#define   RH_IO2_GPIO                (GpioPortB)
-#define   RH_IO2_PIN                 (GpioPin14)
 
 boolean_t IoDevGetStatus(en_gpio_port_t enPort, en_gpio_pin_t enPin);
 boolean_t IoDevGetElectricMachineryStatus(void);

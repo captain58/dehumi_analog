@@ -1,5 +1,5 @@
 #include "src/iodev.h"
-
+#include "config.h"
 boolean_t IoDevGetStatus(en_gpio_port_t enPort, en_gpio_pin_t enPin) {
     return Bsp_GetGpioStatus(enPort, enPin);
 }
