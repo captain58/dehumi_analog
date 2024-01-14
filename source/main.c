@@ -38,7 +38,8 @@ void RecoverMode(void) {
     }
     return;
 }
-
+unsigned char guctmp[10] = {0,0,0,0,0,0xff,0xff,0xff,0xff,0xff};
+int gun_UartReset = 0;
 int32_t main(void)
 {
     Bsp_Wdt_Start();
@@ -46,10 +47,16 @@ int32_t main(void)
     Debug_Print("-------->app version:%s", APP_MAIN_VERSION);
     while (1)
     {
-        Debug_Print("main tick:%u\n", rt_tick_get());
-        rt_thread_mdelay(10000);
+                //Bsp_Rs485_SendData((char *)guctmp, 10);
+        Debug_Print("main                 :%u\n", rt_tick_get());
+        rt_thread_mdelay(2000);
         Bsp_Wdt_Feed();     /* 喂狗 */
         RecoverMode();
+        gun_UartReset++;
+        if(gun_UartReset>4)
+        {
+            Bsp_Uart1_Reset();
+        }
     }
 }
 

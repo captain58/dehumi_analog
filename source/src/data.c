@@ -279,7 +279,7 @@ RUN_STATUS_E Get_DevStatusForDisplay(void) {
     }
 
     Data_Get_UnLock();
-    return uiRet;
+    return (RUN_STATUS_E)uiRet;
 }
 /* 获取设备显示运行状态 */
 RUN_SHOW_E Get_DevStatusForShow(void) {
@@ -520,6 +520,9 @@ void Pm2_5_thread_entry(void *parameter) {
     }
 }
 uint8_t guc_comm_err_flg = 0;
+uint8_t guc_runStatBak = 0;
+uint8_t guc_runModBak = 0;
+uint8_t guc_comm_err_stat=0;
 /* 判断告警以及是否需要停机 */
 void Check_Alarm_StopDevice(void) {
     uint8_t uiRet = 0;
@@ -545,14 +548,41 @@ void Check_Alarm_StopDevice(void) {
     if (g_Core_Data.stInPutInfo.uiWaterLeakage) {
         uiRet = 1;
     }
-    
+    /* 风机异常，停机 */
+//    if (0 == g_Core_Data.stInPutInfo.ucFanChkStat) {
+//        g_Core_Data.stDevStatus.uiFanStatus = 1;
+//        uiRet = 1;
+//    }
+//    else
+//    {
+//        g_Core_Data.stDevStatus.uiFanStatus = 0;
+//    }
     /* 温湿度传感器持续3分钟无法获取数据，停机 */
 //    if (g_Core_Data.stDevStatus.uiStopTemperCnt > 3 * 60) {
 //        uiRet = 1;
 //    }
-    if(guc_comm_err_flg)
+    if(guc_comm_err_stat == 0)
     {
-        uiRet = 1;
+        if(guc_comm_err_flg)
+        {
+            guc_comm_err_stat=1;
+            uiRet = 1;
+            guc_runStatBak = g_Core_Data.stDevStatus.uiDevRunStatus;
+            guc_runModBak = g_Core_Data.stDevStatus.uiDevRunMode;
+        }
+    }
+    else
+    {
+        if(!guc_comm_err_flg)
+        {
+            if(uiRet == 0)
+            {
+                Debug_Print(">>>comm resume device.");
+                Set_Dev_RunStatus(guc_runStatBak);
+                Set_Dev_RunMode(guc_runStatBak);
+            }
+            guc_comm_err_stat = 0;            
+        }
     }
     Data_Get_UnLock();
 
@@ -568,14 +598,19 @@ void Check_Alarm_StopDevice(void) {
 #else
 #define CON_TEMP_HUMI_ERR_MAX 600
 #endif
+#define CON_UNDER_COMPRESS_BY_TEMP_MAX 180
 extern uint32_t gul_comm_count;
+uint8_t guc_TubeTempChk=0;
 void Coredata_thread_entry(void *parameter) {
     int16_t iTubeTemperature;
     int16_t iTemperature=0;
     uint16_t uiHumidity=1500;
     uint16_t uiLoop = 0;
     uint16_t ui_compressor_under_count = 0;
-    uint8_t uiCompressorPressure;
+    uint16_t ui_compressor_under_count2 = 0;
+    uint16_t ui_fan_stat_chk_count = 0;
+    uint8_t uiCompressorPressure=0,uiCompressorPressure2=0;
+    uint8_t uiC_fan_stat_chk=0;
     uint16_t ui_temp_humi_err_count = 0;
     uint16_t ui_tub_err_count = 0;
     uint8_t uc_err_stt;
@@ -647,8 +682,32 @@ void Coredata_thread_entry(void *parameter) {
         g_Core_Data.stInPutInfo.uiLowerWaterLevel = !IoDevGetStatus(LOW_WATER_LEVEL_GPIO, LOW_WATER_LEVEL_PIN);
         g_Core_Data.stInPutInfo.uiUpperWaterLevel = IoDevGetStatus(UPPER_WATER_LEVEL_GPIO, UPPER_WATER_LEVEL_PIN);
         g_Core_Data.stInPutInfo.uiMidWaterLevel = IoDevGetStatus(MID_WATER_LEVEL_GPIO, MID_WATER_LEVEL_PIN);
+		uiCompressorPressure = !IoDevGetStatus(COMPERSSORPRESSURE_GPIO, COMPERSSORPRESSURE_PIN);
+        //g_Core_Data.stInPutInfo.ucFanChkStat = IoDevGetStatus(FAN_CHK_GPIO, FAN_CHK_PIN);
+        if (Get_Ele_Enable() != ELEMAC_LEVEL_CLOSE) 
+        {
+            uiC_fan_stat_chk = IoDevGetStatus(FAN_CHK_GPIO, FAN_CHK_PIN);
+            if(0 == uiC_fan_stat_chk)
+            {
+                ui_fan_stat_chk_count++;
+                if(ui_fan_stat_chk_count < 10)
+                {
+                    uiC_fan_stat_chk = 1;
+                }
+            }
+            else
+            {
+                ui_fan_stat_chk_count = 0;
+            }
+            g_Core_Data.stInPutInfo.ucFanChkStat = uiC_fan_stat_chk;
+        }
+        else
+        {
+            ui_fan_stat_chk_count = 0;
+            //g_Core_Data.stInPutInfo.ucFanChkStat = 1;
+        }
+
         
-        uiCompressorPressure = !IoDevGetStatus(COMPERSSORPRESSURE_GPIO, COMPERSSORPRESSURE_PIN);
         if(TRUE == uiCompressorPressure)
         {
             ui_compressor_under_count++;
@@ -663,7 +722,38 @@ void Coredata_thread_entry(void *parameter) {
         {
             ui_compressor_under_count = 0;
         }
-        g_Core_Data.stInPutInfo.uiCompressorPressure = uiCompressorPressure;
+        
+        if(guc_TubeTempChk)
+        {
+            if((iTemperature > iTubeTemperature && (iTemperature  - iTubeTemperature) <= 300 )|| 
+                (iTemperature < iTubeTemperature && ( iTubeTemperature - iTemperature ) <= 300) )
+            {
+                uiCompressorPressure2 = TRUE;
+            }
+            else
+            {
+                uiCompressorPressure2 = FALSE;
+            }
+            if(TRUE == uiCompressorPressure2)
+            {
+                ui_compressor_under_count2++;
+                if(ui_compressor_under_count2 < CON_UNDER_COMPRESS_BY_TEMP_MAX)
+                {
+                    uiCompressorPressure2 = FALSE;
+                    if(ui_compressor_under_count2 > 0x8000)
+                        ui_compressor_under_count2 = CON_UNDER_COMPRESS_MAX;
+                }
+            }
+            else
+            {
+                ui_compressor_under_count2 = 0;
+            }
+        }
+        else
+        {
+        }
+        
+        g_Core_Data.stInPutInfo.uiCompressorPressure = uiCompressorPressure | uiCompressorPressure2;
         
         
         if ((uiLoop % 30) == 0) {
@@ -672,6 +762,7 @@ void Coredata_thread_entry(void *parameter) {
             Debug_Print(">>>InputGet: uiUpperWaterLevel:%u\n", g_Core_Data.stInPutInfo.uiUpperWaterLevel);
             Debug_Print(">>>InputGet: uiMidWaterLevel:%u\n", g_Core_Data.stInPutInfo.uiMidWaterLevel);
             Debug_Print(">>>InputGet: uiCompressorPressure:%u\n", g_Core_Data.stInPutInfo.uiCompressorPressure);
+            Debug_Print(">>>InputGet: ucFanStat:%u\n", g_Core_Data.stInPutInfo.ucFanChkStat);
         }
         
         if (g_Core_Data.stInPutInfo.uiCompressorPressure) {

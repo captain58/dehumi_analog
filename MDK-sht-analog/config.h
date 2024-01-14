@@ -2,7 +2,7 @@
 #define __CONFIG_H__
 
 #define MAJOR_VER       "v0.0."
-#define MINOR_VER       "66"
+#define MINOR_VER       "72"
 #define SPECIAL_VER     "-SHT3x-ARP"
 /* 管盘温度adc */
 #define BSP_ADC_NTC_GPIO            (GpioPortA)
@@ -26,7 +26,7 @@
 /* RH_IO2 */
 #define   RH_IO2_GPIO                (GpioPortD)
 #define   RH_IO2_PIN                 (GpioPin7)
-
+//AC交流电机
 #define CON_AC_MOTOR 0
 #endif
 

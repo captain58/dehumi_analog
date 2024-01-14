@@ -3,7 +3,7 @@ static uint32_t g_dev_run_timecnt = 0;  /* 设备运行时间，单位s */
 static uint32_t g_timecnt = 0;  /* 时间计数，单位s */
 static uint32_t g_timecntcompressure = 0;  /* 压缩机压力时间计数，单位s */
 static uint32_t g_com_run_time = 0;  /* 压缩机运行时间，单位s */
-
+extern uint8_t guc_TubeTempChk;
 #define CON_HUMIDITY_MARGIN 300
 
 /* 获取pm2.5的等级 1优2劣3良 */
@@ -46,10 +46,13 @@ void Run_Mode_Set(uint8_t uiflag, DIGIT_STATUS_U *pstParaCmd, uint8_t uiResetFla
         /* 保存压缩机工作时间到flash */
         Store_Core_Data2Flash();
     } else {    /* 模式开启 */
-        if (Get_Dev_RunStatus() != RUN_STATUS_STANDBY) {
+        if (Get_Dev_RunStatus() != RUN_STATUS_STANDBY && Get_Dev_RunStatus() != RUN_STATUS_STOP) {
             return;
         }
-
+        if(Get_Dev_RunStatus() == RUN_STATUS_STOP)
+        {
+            Set_Dev_RunStatus(RUN_STATUS_STANDBY);
+        }
         Data_Get_Lock();
         CORE_DATA_S *pstData = Data_Get_Point();
         switch (uimode)
@@ -141,7 +144,8 @@ void Run_Mode_Set(uint8_t uiflag, DIGIT_STATUS_U *pstParaCmd, uint8_t uiResetFla
         }
     }
 }
-
+uint32_t g_ulCompressorStartTick = 0;
+extern uint32_t g_ulSysTick;
 /* 设置部件运行状态,若参数为-1，表示默认状态，否则强制按此状态执行 iForce 为1时强制设置，否则相同状态不设置 */
 void Task_Set_DeviceRun(int8_t iForce, int8_t iCompressor, int8_t iWaterPump, int8_t iUVLamp, int8_t iAnion, int8_t iElectricMachinery, int8_t iOzone, int8_t iBaiYe) {
     DIGIT_STATUS_U    stOutPutEnable;
@@ -200,6 +204,11 @@ void Task_Set_DeviceRun(int8_t iForce, int8_t iCompressor, int8_t iWaterPump, in
     /* 部件运行 */
     if ((iForce) || (stOutPutEnable.uiCompressor != stOutPutEnableTmp.uiCompressor)) {
         IoDevSetCompressor(stOutPutEnable.uiCompressor);
+        guc_TubeTempChk = 0;
+        if(stOutPutEnable.uiCompressor)
+        {
+            g_ulCompressorStartTick = g_ulSysTick;
+        }
     }
     if ((iForce) || (stOutPutEnable.uiWaterPump != stOutPutEnableTmp.uiWaterPump)) {
         IoDevSetWaterPump(stOutPutEnable.uiWaterPump);
@@ -683,7 +692,34 @@ void Task_thread_entry(void *parameter) {
             default:
                 break;
         }
+//增加代碼
 
+
+        DIGIT_STATUS_U    stOutPutEnableTmp;
+        
+
+        /* 获取部件现在的状态 */
+        Get_Dev_RunDiGit(&stOutPutEnableTmp);
+
+        if(stOutPutEnableTmp.uiCompressor && !guc_TubeTempChk)
+        {
+            uint32_t ultick = g_ulSysTick;
+
+            if(g_ulCompressorStartTick > 0 && ((ultick >= g_ulCompressorStartTick && ultick - g_ulCompressorStartTick >= 600000) || 
+                                                (ultick < g_ulCompressorStartTick && (0xffffffff - g_ulCompressorStartTick + ultick) >= 600000)))
+            {
+                //判斷溫度異常故障
+                guc_TubeTempChk = 1; 
+            }
+            else
+            {
+                guc_TubeTempChk = 0;
+            }
+        }
+//        else
+//        {
+//            guc_TubeTempChk = 0;
+//        }
         g_dev_run_timecnt++;
         rt_thread_mdelay(1000);
     }

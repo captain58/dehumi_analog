@@ -192,6 +192,7 @@ int BspUartInit(void)
 /* 复位485 uart1 外设 */
 void Bsp_Uart1_Reset(void) {
     Reset_RstPeripheral(ResetMskUart1);
+    Reset_RstPeripheral(ResetMskUart0);
     Bsp_Uart_Init();
     return;
 }

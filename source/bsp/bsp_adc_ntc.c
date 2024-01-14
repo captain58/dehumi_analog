@@ -345,6 +345,18 @@ void App_AdcPortInit(void)
     Sysctrl_SetPeripheralGate(SysctrlPeripheralGpio, TRUE);
     
     Gpio_SetAnalogMode(BSP_ADC_NTC_GPIO, BSP_ADC_NTC_PIN);        //PA00 (AIN0)
+    
+    stc_gpio_cfg_t stcGpioCfg;
+
+    DDL_ZERO_STRUCT(stcGpioCfg);
+
+    ///<TX
+    stcGpioCfg.enDir =     GpioDirIn;
+    stcGpioCfg.enPu = GpioPuDisable;
+    stcGpioCfg.enPd = GpioPdEnable;
+    Gpio_Init(BSP_ADC_TEMP_GPIO, BSP_ADC_TEMP_PIN, &stcGpioCfg);
+    Gpio_Init(BSP_ADC_HUMP_GPIO, BSP_ADC_HUMP_PIN, &stcGpioCfg);
+    
     Gpio_SetAnalogMode(BSP_ADC_TEMP_GPIO, BSP_ADC_TEMP_PIN);        //PB10 (AIN17)
     Gpio_SetAnalogMode(BSP_ADC_HUMP_GPIO, BSP_ADC_HUMP_PIN);        //PB11 (AIN18)
 }

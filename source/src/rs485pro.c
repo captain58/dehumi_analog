@@ -641,7 +641,7 @@ boolean_t Check_485_Pro(uint8_t *pcData, uint8_t uilen, uint8_t *puiOutlen) {
     memcpy(pcData, szRecvData, uiRecvLen);
     return TRUE;
 }
-
+extern int gun_UartReset;
 void Rs485_thread_entry(void *parameter) {
     uint8_t szRecv[64] = {0};
     uint8_t uiIndex = 0;
@@ -651,11 +651,13 @@ void Rs485_thread_entry(void *parameter) {
 
     while (1)
     {
+
         iRecvData = rt_rs485_getchar();
         if (rt_tick_get() - uiRecvTick > 300) {
             memset(szRecv, 0, sizeof(szRecv));
             uiIndex = 0;
         }
+        gun_UartReset=0;
         uiRecvTick = rt_tick_get();
         szRecv[uiIndex++] = (uint8_t)iRecvData;
         if (Check_485_Pro(szRecv, uiIndex, &uiRecvDataLen)) {

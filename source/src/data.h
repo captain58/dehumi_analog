@@ -160,10 +160,12 @@ typedef struct Input_Info
     uint8_t uiLowerWaterLevel;          /* 下水位开关 */
     uint8_t uiUpperWaterLevel;          /* 上水位开关 */
     uint8_t uiCompressorPressure;       /* 压缩机压力开关 */
+    uint8_t ucFanChkStat;                  /* 风机状态*/    
     int32_t  iTemperature;              /* 温度 温湿度传感器 */
     uint16_t uiHumidity;                /* 湿度 温湿度传感器 */
     uint16_t uiPm2_5;                   /* PM2.5浓度 */
     int32_t  iTubeTemperature;          /* 管盘温度 热敏电阻 */
+
 
 }INPUT_INFO_S;
 

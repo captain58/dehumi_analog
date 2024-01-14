@@ -10,6 +10,10 @@
 #define   WATER_LEAKAGE_GPIO        (GpioPortA)
 #define   WATER_LEAKAGE_PIN         (GpioPin5)
 
+/* 风机检测 */
+#define   FAN_CHK_GPIO        (GpioPortB)
+#define   FAN_CHK_PIN         (GpioPin4)
+
 /* 下水位 */
 #define   LOW_WATER_LEVEL_GPIO      (GpioPortA)
 #define   LOW_WATER_LEVEL_PIN       (GpioPin7)
