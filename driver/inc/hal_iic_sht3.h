@@ -22,6 +22,8 @@
 #ifndef _IIC_LS_H_
 #define _IIC_LS_H_
 
+#include <stdint.h>
+
 #define SYS_OK()            {return 0;}
 #define SYS_ERR()            {return 1;}
 
@@ -53,13 +55,13 @@ void Init_I2C_Sht(/*onst IIC_PORTS* ports*/);
  * @param: data  
  * 
  * @返回: 
- * @return:  uint8   
+ * @return:  uint8_t   
  * @作者: yzy (2019-11-03)
  *-----------------------------------------------------------------------------
  * @修改人: 
  * @修改说明: 
  ******************************************************************************/
-uint8 I2C_Write_Sht(uint8 data);
+uint8_t I2C_Write_Sht(uint8_t data);
 
 /*******************************************************************************
  * @function_name:  I2C_LS_ReadLX
@@ -71,13 +73,13 @@ uint8 I2C_Write_Sht(uint8 data);
  * @param: date   数据缓存
  * 
  * @返回: 
- * @return:  uint8   
+ * @return:  uint8_t   
  * @作者: yzy (2019-11-03)
  *-----------------------------------------------------------------------------
  * @修改人: 
  * @修改说明: 
  ******************************************************************************/
-uint8 I2C_Read_Sht(uint8* time);
+uint8_t I2C_Read_Sht(uint8_t* time);
 
 
 

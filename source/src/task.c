@@ -5,7 +5,9 @@ static uint32_t g_timecntcompressure = 0;  /* 压缩机压力时间计数，单�
 static uint32_t g_com_run_time = 0;  /* 压缩机运行时间，单位s */
 extern uint8_t guc_TubeTempChk;
 #define CON_HUMIDITY_MARGIN 300
-
+int8_t g_iAnion;
+int8_t g_iUVLamp;
+int8_t g_iOzone;
 /* 获取pm2.5的等级 1优2劣3良 */
 uint8_t Get_Pm2_5_Level(uint16_t value) {
     if (value < 35) {
@@ -42,7 +44,7 @@ void Run_Mode_Set(uint8_t uiflag, DIGIT_STATUS_U *pstParaCmd, uint8_t uiResetFla
         CORE_DATA_S *pstData = Data_Get_Point();
         pstData->stAlarmData.uiLastRunMode = 1;
         Data_Get_UnLock();
-
+        
         /* 保存压缩机工作时间到flash */
         Store_Core_Data2Flash();
     } else {    /* 模式开启 */
@@ -146,6 +148,7 @@ void Run_Mode_Set(uint8_t uiflag, DIGIT_STATUS_U *pstParaCmd, uint8_t uiResetFla
 }
 uint32_t g_ulCompressorStartTick = 0;
 extern uint32_t g_ulSysTick;
+
 /* 设置部件运行状态,若参数为-1，表示默认状态，否则强制按此状态执行 iForce 为1时强制设置，否则相同状态不设置 */
 void Task_Set_DeviceRun(int8_t iForce, int8_t iCompressor, int8_t iWaterPump, int8_t iUVLamp, int8_t iAnion, int8_t iElectricMachinery, int8_t iOzone, int8_t iBaiYe) {
     DIGIT_STATUS_U    stOutPutEnable;
@@ -358,6 +361,9 @@ void Debug_DevCurSubStatus_(uint8_t uiSubStatus) {
     return;
 }
 #define CON_HUMI_FILTER 10
+
+uint32_t g_uiOzoneTick = 0;
+
 void Task_thread_entry(void *parameter) {
     int8_t level;
     RUN_STATUS_E enRunStatus;
@@ -366,11 +372,19 @@ void Task_thread_entry(void *parameter) {
     CORE_DATA_S *pstData = NULL;
     uint32_t uiLoop = 0;
     static uint16_t s_2high_count=0,s_2mid_count=0,s_2low_count=0;
+    g_iAnion = 0;g_iUVLamp=0;
     /* 初始化关闭所有部件 */
-    Task_Set_DeviceRun(1, 0, WATER_DUMP_CLOSE, 0, 0, ELEMAC_LEVEL_CLOSE, 0, 0);
-
+    Task_Set_DeviceRun(1, 0, WATER_DUMP_CLOSE, 0, g_iAnion, ELEMAC_LEVEL_CLOSE, 0, 0);
+    uint8_t pm2_5;
+    uint16_t count=0;
+    DIGIT_STATUS_U    stOutPutEnableTmp;
+    
     while (TRUE) {
         uiLoop++;
+        if(g_uiOzoneTick > 0)
+        {
+            g_uiOzoneTick++;
+        }
         enRunStatus = Get_Dev_RunStatus();
         enRunMode = Get_Dev_RunMode();
         uiSubStatus = Get_Dev_RunSubStatus();
@@ -383,18 +397,68 @@ void Task_thread_entry(void *parameter) {
             Debug_DevCurStatus_(enRunStatus);
             Debug_DevCurSubStatus_(uiSubStatus);
         }
+        
+        if(RUN_STATUS_STOP != enRunStatus && RUN_STATUS_STANDBY != enRunStatus )
+        {
+            if ((enRunMode == RUN_MODE_AUTO_E))
+            {
+                /* 获取部件现在的状态 */
+                Get_Dev_RunDiGit(&stOutPutEnableTmp);       
+                pstData = Data_Get_Point();
+                pm2_5 = Get_Pm2_5_Level(pstData->stInPutInfo.uiPm2_5);
+                if(stOutPutEnableTmp.uiAnion)
+                {
+                    if(PM2_5_LEVEL_GOOD == pm2_5)
+                    {
+                        count++;
+                        if(count > 10)
+                        {
+                            g_iAnion = 0;g_iUVLamp=0;
+                            Task_Set_DeviceRun(0, -1, -1, g_iUVLamp, g_iAnion, -1, g_iOzone, -1);
+                            count = 0;
+                        }
+                    }
+                    else
+                    {
+                        count=0;
+                    }
+                }
+                else
+                {
+                    if(PM2_5_LEVEL_GOOD != pm2_5)
+                    {
+                        count++;
+                        if(count > 10)
+                        {
+                            g_iAnion = 1;g_iUVLamp=1;
+                            Task_Set_DeviceRun(0, -1, -1, g_iUVLamp, g_iAnion, -1, g_iOzone, -1);
+                            count = 0;
+                        }
+                    }
+                    else
+                    {
+                        count=0;
+                    }
+                }
+            }
+        }        
+        
         switch (enRunStatus)
         {
             case RUN_STATUS_STOP:
                 /* 关闭所有部件 */
+                g_uiOzoneTick = 0;
                 Task_Set_DeviceRun(0, 0, WATER_DUMP_CLOSE, 0, 0, ELEMAC_LEVEL_CLOSE, 0, 0);
                 break;
             case RUN_STATUS_STANDBY:
                 /* 关闭所有部件 */
+                g_uiOzoneTick = 0;
                 Task_Set_DeviceRun(0, 0, WATER_DUMP_CLOSE, 0, 0, ELEMAC_LEVEL_CLOSE, 0, 0);
                 break;
             case RUN_STATUS_DEHUMIDIFICATION_ING:
                 /* 温湿度告警，管盘温度告警 暂停 */
+                g_iOzone=0;
+                g_uiOzoneTick = 0;
                 Data_Get_Lock();
                 pstData = Data_Get_Point();
                 //if ((pstData->stDevStatus.uiTemperatureStatus == 1) || (pstData->stDevStatus.uiHumidityStatus == 1)) {
@@ -417,7 +481,7 @@ void Task_thread_entry(void *parameter) {
                 {
                     case DEHUMIDIFICATION_STANDBY_E:
                         /* 暂停状态，关闭压缩机，关闭风扇 */
-                        Task_Set_DeviceRun(0, 0, WATER_DUMP_CLOSE, -1, -1, level, -1, -1);
+                        Task_Set_DeviceRun(0, 0, WATER_DUMP_CLOSE, g_iUVLamp, g_iAnion, level, g_iOzone, -1);
                         if (g_dev_run_timecnt) {
                             Debug_fileline
                             Set_Dev_RunSubStatus(DEHUMIDIFICATION_WAIT_E);
@@ -426,7 +490,7 @@ void Task_thread_entry(void *parameter) {
                         break;
                     case DEHUMIDIFICATION_WAIT_E:
                         /* 进入等待模式，关闭压缩机，风机低速 */
-                        Task_Set_DeviceRun(0, 0, WATER_DUMP_CLOSE, -1, -1, ELEMAC_LEVEL_LOW, -1, -1);
+                        Task_Set_DeviceRun(0, 0, WATER_DUMP_CLOSE, g_iUVLamp, g_iAnion, ELEMAC_LEVEL_LOW, g_iOzone, -1);
                         Data_Get_Lock();
                         pstData = Data_Get_Point();
 
@@ -539,7 +603,7 @@ void Task_thread_entry(void *parameter) {
 
                         /* 除湿模式，开启压缩机 */
                         level = Get_Ele_LevelByHum(1, g_dev_run_timecnt);
-                        Task_Set_DeviceRun(0, 1, WATER_DUMP_CLOSE, -1, -1, level, -1, -1);
+                        Task_Set_DeviceRun(0, 1, WATER_DUMP_CLOSE, g_iUVLamp, g_iAnion, level, g_iOzone, -1);
                         g_com_run_time++;
                         break;
                     case DEHUMIDIFICATION_DEFROST_E:
@@ -574,7 +638,7 @@ void Task_thread_entry(void *parameter) {
                         Data_Get_UnLock();
 
                         /* 化霜模式，关闭压缩机，风机自动 */
-                        Task_Set_DeviceRun(0, 0, WATER_DUMP_CLOSE, -1, -1, ELEMAC_LEVEL_HIGH, -1, -1);
+                        Task_Set_DeviceRun(0, 0, WATER_DUMP_CLOSE, g_iUVLamp, g_iAnion, ELEMAC_LEVEL_HIGH, g_iOzone, -1);
                         break;
                     default:
                         break;
@@ -612,7 +676,9 @@ void Task_thread_entry(void *parameter) {
                 {
                     case HUMIDIFICATION_STANDBY_E:
                         /* 暂停状态，关闭水泵，风扇低速30s后打开水泵 */
-                        Task_Set_DeviceRun(0, 0, WATER_DUMP_CLOSE, -1, -1, ELEMAC_LEVEL_LOW, -1, -1);
+                        g_iOzone=0;
+                        g_uiOzoneTick = 0;
+                        Task_Set_DeviceRun(0, 0, WATER_DUMP_CLOSE, g_iUVLamp, g_iAnion, ELEMAC_LEVEL_LOW, g_iOzone, -1);
                     
                         /* 当前湿度比下限高 暂停 */
                         if (pstData->stInPutInfo.uiHumidity > pstData->stAlarmData.uiHumidityLow) {
@@ -639,6 +705,20 @@ void Task_thread_entry(void *parameter) {
                         break;
                     case HUMIDIFICATION_RUN_E:
                         /* 加湿状态，打开加湿水泵 */
+                        //开始消毒
+                        if(0 == g_uiOzoneTick)
+                        {
+                            g_iOzone = 1;
+                            Task_Set_DeviceRun(0, 0, -1, g_iUVLamp, g_iAnion, -1, g_iOzone, -1);
+                            g_uiOzoneTick++;
+                        }
+                        
+                        if(g_uiOzoneTick > 60 * 60)
+                        {
+                            g_iOzone = 0;
+                            Task_Set_DeviceRun(0, 0, -1, g_iUVLamp, g_iAnion, -1, g_iOzone, -1);                   
+                        }
+                        
                     
                         /* 当前湿度比下限高 暂停 */
                         //if (pstData->stInPutInfo.uiHumidity > pstData->stAlarmData.uiHumidityLow + CON_HUMIDITY_MARGIN) 
@@ -660,9 +740,9 @@ void Task_thread_entry(void *parameter) {
                     
                         level = Get_Ele_LevelByHum(2, g_dev_run_timecnt);
                         if (g_timecnt >= 120) {
-                            Task_Set_DeviceRun(0, 0, WATER_DUMP_LOW, -1, -1, level, -1, -1);
+                            Task_Set_DeviceRun(0, 0, WATER_DUMP_LOW, g_iUVLamp, g_iAnion, level, g_iOzone, -1);
                         } else {
-                            Task_Set_DeviceRun(0, 0, WATER_DUMP_RUN, -1, -1, level, -1, -1);
+                            Task_Set_DeviceRun(0, 0, WATER_DUMP_RUN, g_iUVLamp, g_iAnion, level, g_iOzone, -1);
                         }
                         g_timecnt++;
                         break;
@@ -671,6 +751,8 @@ void Task_thread_entry(void *parameter) {
                 }
                 break;
             case RUN_STATUS_PURIFY_ING:
+                g_iOzone=0;
+                g_uiOzoneTick = 0;
                 switch (uiSubStatus)
                 {
                     case PURIFY_STANDBY_E:
@@ -683,13 +765,15 @@ void Task_thread_entry(void *parameter) {
                     case PURIFY_RUN_E:
                         /* 打开净化部件 */
                         level = Get_Ele_LevelByHum(3, g_dev_run_timecnt);
-                        Task_Set_DeviceRun(0, 0, WATER_DUMP_CLOSE, -1, -1, level, -1, -1);
+                        Task_Set_DeviceRun(0, 0, WATER_DUMP_CLOSE, g_iUVLamp, g_iAnion, level, g_iOzone, -1);
                         break;
                     default:
                         break;
                 }
                 break;
             default:
+                g_iOzone=0;
+                g_uiOzoneTick = 0;
                 break;
         }
 //增加代碼

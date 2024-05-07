@@ -1,4 +1,5 @@
 #include "bsp_pm2_5.h"
+#include "config.h"
 
 #define BSP_PM2_5_CHECK_TIME        (15)
 static uint32_t g_pm2_5totalCnt = 0;
@@ -28,7 +29,7 @@ uint16_t Bsp_Pm2_5_Sync(void) {
     g_pm2_5StartCnt = Bsp_Timer3_GetMsCnt();
     g_pm2_5StartCnt1 = Bsp_Timer3_GetMsCnt();
     g_pm2_5totalCnt = 0;
-
+    uint16_t result;
     /* 设置为输入并开启中断 */
     Bsp_Gpio_InPutInit(BSP_PM2_5_DATA_GPIO, BSP_PM2_5_DATA_PIN, BSP_GPIO_PULL_DISABLE_E);
     Gpio_EnableIrq(BSP_PM2_5_DATA_GPIO, BSP_PM2_5_DATA_PIN, GpioIrqRising);
@@ -39,6 +40,16 @@ uint16_t Bsp_Pm2_5_Sync(void) {
     
     Gpio_DisableIrq(BSP_PM2_5_DATA_GPIO, BSP_PM2_5_DATA_PIN, GpioIrqRising);
     Gpio_DisableIrq(BSP_PM2_5_DATA_GPIO, BSP_PM2_5_DATA_PIN, GpioIrqFalling);
-    uint16_t result = g_pm2_5totalCnt * 1000 / Bsp_Timer_Sub(Bsp_Timer3_GetMsCnt(), g_pm2_5StartCnt);
+    
+#if (CON_PM25_PIRS10A > 0)
+    result = g_pm2_5totalCnt / BSP_PM2_5_CHECK_TIME ;
+    result /= 10;
+#else
+    
+    result = g_pm2_5totalCnt * 1000 / Bsp_Timer_Sub(Bsp_Timer3_GetMsCnt(), g_pm2_5StartCnt);
+    
+    int fPm2 = result/10;
+    result = (uint16_t)(((-0.0058 * fPm2 * fPm2 * fPm2)) + (0.42 * fPm2 * fPm2) + 11.5*fPm2 + 5);
+#endif    
     return result;
 }

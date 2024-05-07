@@ -32,7 +32,10 @@ void SHT30_reset(void)
 */
 uint8_t SHT30_Init(void)
 {
-    return SHT30_Send_Cmd(MEDIUM_2_CMD);
+     SHT30_Send_Cmd(MEDIUM_2_CMD);
+    rt_thread_mdelay(20);
+        SHT30_Send_Cmd(READOUT_FOR_PERIODIC_MODE);
+    return 0;
 }
 
 /**
@@ -42,6 +45,7 @@ uint8_t SHT30_Init(void)
 */
 uint8_t SHT30_Read_Dat(uint8_t* dat)
 {
+    
     SHT30_Send_Cmd(READOUT_FOR_PERIODIC_MODE);
     return Bsp_I2c_ReadData(dat, 6, 1000);
 }
@@ -96,50 +100,64 @@ uint8_t SHT30_Dat_To_Float(uint8_t* const dat, float* temperature, float* humidi
 boolean_t Sync_TempHum(int16_t *piTemp, uint16_t *puiHumi) {
     float temp;
     float humi;
+    static int failed_times = 0;
     uint8_t szRecv[6] = {0};
-    uint8_t uiFailed = 2;
-    
+    uint8_t uiFailed = 10;
+    //SHT30_Send_Cmd(READOUT_FOR_PERIODIC_MODE);
+    rt_thread_mdelay(100);
     while (uiFailed--)
     {
         memset(szRecv, 0, sizeof(szRecv));
 
         if (TRUE != SHT30_Read_Dat(szRecv)) {
             Debug_Print("Sync_TempHum read failed!");
-            rt_thread_mdelay(200);
-            SHT30_reset();
-            rt_thread_mdelay(20);
-            if (TRUE == SHT30_Init()) {
-                Debug_Print("sht30 init success.");
-            } else {
-                Debug_Print("sht30 init failed.");
-            }
-            rt_thread_mdelay(20);
+            rt_thread_mdelay(100);
+            //SHT30_reset();
+            //rt_thread_mdelay(20);
+            //if (TRUE == SHT30_Init()) {
+            //    Debug_Print("sht30 init success.");
+            //} else {
+            //    Debug_Print("sht30 init failed.");
+            //}
+            //rt_thread_mdelay(20);
             continue;
         }
 
         if (SHT30_Dat_To_Float(szRecv, &temp, &humi)) {
             Debug_Print("Sync_TempHum crc failed!");
-            rt_thread_mdelay(200);
-            SHT30_reset();
-            rt_thread_mdelay(20);
-            if (TRUE == SHT30_Init()) {
-                Debug_Print("sht30 init success.");
-            } else {
-                Debug_Print("sht30 init failed.");
-            }
-            rt_thread_mdelay(20);
+            rt_thread_mdelay(100);
+            //SHT30_reset();
+            //rt_thread_mdelay(20);
+//            if (TRUE == SHT30_Init()) {
+//                Debug_Print("sht30 init success.");
+//            } else {
+//                Debug_Print("sht30 init failed.");
+//            }
+            //rt_thread_mdelay(20);
             continue;
         }
 
         break;
     }
     
-    if ((uiFailed > 0) && (uiFailed <= 2)) {
+    if ((uiFailed > 0) && (uiFailed <= 0x7f)) {
         *piTemp = (int16_t)(temp * 100);
         *puiHumi = (uint16_t)(humi * 100);
+        failed_times = 0;
         return TRUE;
     }
-
+    failed_times++;
+    if(failed_times > 120)
+    {
+        SHT30_reset();
+        rt_thread_mdelay(20);
+        if (TRUE == SHT30_Init()) {
+            Debug_Print("sht30 re init success.");
+        } else {
+            Debug_Print("sht30 re init failed.");
+        }
+        
+    }
     return FALSE;
 }
 

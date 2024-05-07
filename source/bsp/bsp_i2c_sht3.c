@@ -1,3 +1,4 @@
+#include "hal_iic_sht3.h"
 #include "bsp_i2c.h"
 
 ///< IO端口配置
@@ -132,56 +133,60 @@ en_result_t I2C_MasterReadData(M0P_I2C_TypeDef* I2CX,uint8_t *pu8Data,uint32_t u
  ** \retval 写数据是否成功
  **
  ******************************************************************************/
-en_result_t I2C_MasterWriteData(M0P_I2C_TypeDef* I2CX,uint8_t *pu8Data,uint32_t u32Len)
-{
-    en_result_t enRet = Error;
-    uint8_t u8i=0,u8State;
-    uint32_t uiFailed = 0;
-    I2C_SetFunc(I2CX,I2cStart_En);
-    while(1)
-    {
-        while(0 == I2C_GetIrq(I2CX))
-        {        
-            uiFailed++;
-            if (uiFailed > 0xffff) {
-                return Error;
-            }
-        }
-        u8State = I2C_GetState(I2CX);
-        switch(u8State)
-        {
-            case 0x08:                                 ///已发送起始条件
-                I2C_ClearFunc(I2CX,I2cStart_En);
-                I2C_WriteByte(I2CX,(I2C_DEVADDR<<1));  ///从设备地址发送
-                break;
-            case 0x18:                                 ///已发送SLA+W，并接收到ACK
-            case 0x28:                                 ///上一次发送数据后接收到ACK
-                I2C_WriteByte(I2CX,pu8Data[u8i++]);
-                break;
-            case 0x20:                                 ///上一次发送SLA+W后，收到NACK
-            case 0x38:                                 ///上一次在SLA+读或写时丢失仲裁
-                I2C_SetFunc(I2CX,I2cStart_En);         ///当I2C总线空闲时发送起始条件
-                break;
-            case 0x30:                                 ///已发送I2Cx_DATA中的数据，收到NACK，将传输一个STOP条件
-                I2C_SetFunc(I2CX,I2cStop_En);          ///发送停止条件
-                break;
-            default:
-                break;
-        }            
-        if(u8i>u32Len)
-        {
-            I2C_SetFunc(I2CX,I2cStop_En);              ///此顺序不能调换，出停止条件
-            I2C_ClearIrq(I2CX);
-            break;
-        }
-        I2C_ClearIrq(I2CX);                            ///清除中断状态标志位
-    }
-    enRet = Ok;
-    return enRet;
-}
+//en_result_t I2C_MasterWriteData(M0P_I2C_TypeDef* I2CX,uint8_t *pu8Data,uint32_t u32Len)
+//{
+//    
+//    
+////    I2C_SHT_Write_Data(pu8Data,u32Len);
+//    en_result_t enRet = Error;
+//    uint8_t u8i=0,u8State;
+//    uint32_t uiFailed = 0;
+//    I2C_SetFunc(I2CX,I2cStart_En);
+//    while(1)
+//    {
+//        while(0 == I2C_GetIrq(I2CX))
+//        {        
+//            uiFailed++;
+//            if (uiFailed > 0xffff) {
+//                return Error;
+//            }
+//        }
+//        u8State = I2C_GetState(I2CX);
+//        switch(u8State)
+//        {
+//            case 0x08:                                 ///已发送起始条件
+//                I2C_ClearFunc(I2CX,I2cStart_En);
+//                I2C_WriteByte(I2CX,(I2C_DEVADDR<<1));  ///从设备地址发送
+//                break;
+//            case 0x18:                                 ///已发送SLA+W，并接收到ACK
+//            case 0x28:                                 ///上一次发送数据后接收到ACK
+//                I2C_WriteByte(I2CX,pu8Data[u8i++]);
+//                break;
+//            case 0x20:                                 ///上一次发送SLA+W后，收到NACK
+//            case 0x38:                                 ///上一次在SLA+读或写时丢失仲裁
+//                I2C_SetFunc(I2CX,I2cStart_En);         ///当I2C总线空闲时发送起始条件
+//                break;
+//            case 0x30:                                 ///已发送I2Cx_DATA中的数据，收到NACK，将传输一个STOP条件
+//                I2C_SetFunc(I2CX,I2cStop_En);          ///发送停止条件
+//                break;
+//            default:
+//                break;
+//        }            
+//        if(u8i>u32Len)
+//        {
+//            I2C_SetFunc(I2CX,I2cStop_En);              ///此顺序不能调换，出停止条件
+//            I2C_ClearIrq(I2CX);
+//            break;
+//        }
+//        I2C_ClearIrq(I2CX);                            ///清除中断状态标志位
+//    }
+//    enRet = Ok;
+//    return enRet;
+//}
 
 boolean_t Bsp_I2c_WriteData(uint8_t *pu8Data,uint32_t u32Len) {
-    if (I2C_MasterWriteData(M0P_I2C1, pu8Data, u32Len) == Ok) {
+    if (0==I2C_SHT_Write_Data(pu8Data,u32Len))//(M0P_I2C1, pu8Data, u32Len) == Ok) 
+    {
         return TRUE;
     } else {
         return FALSE;
@@ -189,7 +194,10 @@ boolean_t Bsp_I2c_WriteData(uint8_t *pu8Data,uint32_t u32Len) {
 }
 
 boolean_t Bsp_I2c_ReadData(uint8_t *pu8Data,uint32_t u32Len, uint32_t uiTimeOut) {
-    if (I2C_MasterReadData(M0P_I2C1, pu8Data, u32Len, uiTimeOut) == Ok) {
+//    if (I2C_MasterReadData(M0P_I2C1, pu8Data, u32Len, uiTimeOut) == Ok) 
+//        I2C_SHT_Read_data
+    if (0 == I2C_SHT_Read_data(pu8Data, u32Len))     
+    {
         return TRUE;
     } else {
         return FALSE;

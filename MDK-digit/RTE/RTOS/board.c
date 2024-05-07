@@ -32,13 +32,13 @@ RT_WEAK void *rt_heap_end_get(void)
     return rt_heap + RT_HEAP_SIZE;
 }
 #endif
-
+uint32_t g_ulSysTick = 0;
 void rt_os_tick_callback(void)
 {
     rt_interrupt_enter();
     
     rt_tick_increase();
-
+    g_ulSysTick++;
     rt_interrupt_leave();
 }
 

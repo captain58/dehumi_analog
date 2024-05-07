@@ -253,7 +253,7 @@ uint8_t Check_TimIsClosed(void) {
     uint8_t uiRet = 0;
 
     Data_Get_Lock();
-    if (g_Core_Data.stAlarmData.uiTimOpenCloseMap == 0) {
+    if ((g_Core_Data.stAlarmData.uiTimOpenCloseMap & 0x3fff) == 0) {
         g_Core_Data.stAlarmData.uiTimOpenCloseFlag = 0;
         uiRet = 1;
     }
@@ -499,23 +499,34 @@ void TimeSwitch_thread_entry(void *parameter) {
     }
 }
 
+//Get_Dev_RunMode
 void Pm2_5_thread_entry(void *parameter) {
     uint16_t uiPm2;
     uint16_t uiPm2_temp;
     double fPm2;
     uint16_t uiLoop = 0;
+    RUN_MODE_E enRunMode;
+    RUN_STATUS_E enRunStatus;
+    uint16_t count = 0;
+    uint8_t pm2_5;
+    DIGIT_STATUS_U    stOutPutEnableTmp;
+
+
 
     while (TRUE) {
+        enRunStatus = Get_Dev_RunStatus();
+        enRunMode = Get_Dev_RunMode();
         uiLoop++;
-        uiPm2 = Bsp_Pm2_5_Sync();
-        fPm2 = uiPm2 / 10;
-        uiPm2_temp = (uint16_t)(((-0.0058 * fPm2 * fPm2 * fPm2)) + (0.42 * fPm2 * fPm2) + 11.5*fPm2 + 5);
+        uiPm2_temp = Bsp_Pm2_5_Sync();
+//        fPm2 = uiPm2 / 10;
+//        uiPm2_temp = (uint16_t)(((-0.0058 * fPm2 * fPm2 * fPm2)) + (0.42 * fPm2 * fPm2) + 11.5*fPm2 + 5);
         if ((uiLoop % 10) == 0) {
             Debug_Print(">>>Bsp_Pm2_5_Sync: %u um/g\n", uiPm2_temp);
         }
         Data_Get_Lock();
         g_Core_Data.stInPutInfo.uiPm2_5 = uiPm2_temp;
         Data_Get_UnLock();
+        
         rt_thread_mdelay(1000);
     }
 }
@@ -549,14 +560,15 @@ void Check_Alarm_StopDevice(void) {
         uiRet = 1;
     }
     /* 风机异常，停机 */
-//    if (0 == g_Core_Data.stInPutInfo.ucFanChkStat) {
-//        g_Core_Data.stDevStatus.uiFanStatus = 1;
-//        uiRet = 1;
-//    }
-//    else
-//    {
-//        g_Core_Data.stDevStatus.uiFanStatus = 0;
-//    }
+    if (0 == g_Core_Data.stInPutInfo.ucFanChkStat) {
+        g_Core_Data.stDevStatus.uiFanStatus = 1;
+        g_Core_Data.stDevStatus.uiFanReportStatus = 1;
+        uiRet = 1;
+    }
+    else
+    {
+        g_Core_Data.stDevStatus.uiFanStatus = 0;
+    }
     /* 温湿度传感器持续3分钟无法获取数据，停机 */
 //    if (g_Core_Data.stDevStatus.uiStopTemperCnt > 3 * 60) {
 //        uiRet = 1;
@@ -611,8 +623,10 @@ void Coredata_thread_entry(void *parameter) {
     uint16_t ui_fan_stat_chk_count = 0;
     uint8_t uiCompressorPressure=0,uiCompressorPressure2=0;
     uint8_t uiC_fan_stat_chk=0;
+    uint8_t ui_motor_stat_chk=0;
     uint16_t ui_temp_humi_err_count = 0;
     uint16_t ui_tub_err_count = 0;
+    g_Core_Data.stInPutInfo.ucFanStat=0;
     uint8_t uc_err_stt;
     while (TRUE) {
         uiLoop++;
@@ -683,14 +697,16 @@ void Coredata_thread_entry(void *parameter) {
         g_Core_Data.stInPutInfo.uiUpperWaterLevel = IoDevGetStatus(UPPER_WATER_LEVEL_GPIO, UPPER_WATER_LEVEL_PIN);
         g_Core_Data.stInPutInfo.uiMidWaterLevel = IoDevGetStatus(MID_WATER_LEVEL_GPIO, MID_WATER_LEVEL_PIN);
 		uiCompressorPressure = !IoDevGetStatus(COMPERSSORPRESSURE_GPIO, COMPERSSORPRESSURE_PIN);
-        //g_Core_Data.stInPutInfo.ucFanChkStat = IoDevGetStatus(FAN_CHK_GPIO, FAN_CHK_PIN);
+        g_Core_Data.stInPutInfo.ucFanChkStat = IoDevGetStatus(FAN_CHK_GPIO, FAN_CHK_PIN);
+        //ui_motor_stat_chk = IoDevGetStatus(AC_MOTOR_GPIO, AC_MOTOR_PIN);
+        
         if (Get_Ele_Enable() != ELEMAC_LEVEL_CLOSE) 
         {
             uiC_fan_stat_chk = IoDevGetStatus(FAN_CHK_GPIO, FAN_CHK_PIN);
             if(0 == uiC_fan_stat_chk)
             {
                 ui_fan_stat_chk_count++;
-                if(ui_fan_stat_chk_count < 10)
+                if(ui_fan_stat_chk_count < 30)
                 {
                     uiC_fan_stat_chk = 1;
                 }
@@ -704,7 +720,7 @@ void Coredata_thread_entry(void *parameter) {
         else
         {
             ui_fan_stat_chk_count = 0;
-            //g_Core_Data.stInPutInfo.ucFanChkStat = 1;
+            g_Core_Data.stInPutInfo.ucFanChkStat = 1;
         }
 
         

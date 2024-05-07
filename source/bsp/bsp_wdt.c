@@ -17,7 +17,7 @@ static int App_WdtInit(void)
     ///< 开启WDT外设时钟
     Sysctrl_SetPeripheralGate(SysctrlPeripheralWdt,TRUE);
     ///< WDT 初始化
-    Wdt_Init(WdtResetEn, WdtT26s2);
+    Wdt_Init(WdtResetEn, WdtT6s55);
     return 0;
 }
 

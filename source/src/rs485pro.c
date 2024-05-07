@@ -242,7 +242,7 @@ uint8_t Rs485_Pro_TaskCmd3(uint8_t *pcInData, uint8_t uiInlen, uint8_t *pcOutDat
     pcOutData[uiIndex++] = pstData->stDevStatus.uiTubeStatus;//盘管传感器异常
     pcOutData[uiIndex++] = pstData->stDevStatus.uiTemperatureStatus;//环温传感器异常
     pcOutData[uiIndex++] = pstData->stDevStatus.uiHumidityStatus;
-    pcOutData[uiIndex++] = pstData->stDevStatus.uiFanStatus;
+    pcOutData[uiIndex++] = pstData->stDevStatus.uiFanReportStatus;
     pcOutData[uiIndex++] = pstData->stInPutInfo.uiUpperWaterLevel;
     pcOutData[uiIndex++] = pstData->stInPutInfo.uiLowerWaterLevel;
     pcOutData[uiIndex++] = pstData->stInPutInfo.uiWaterLeakage;
@@ -262,6 +262,18 @@ uint8_t Rs485_Pro_TaskCmd3(uint8_t *pcInData, uint8_t uiInlen, uint8_t *pcOutDat
     pcOutData[uiIndex++] = uiHumidity >> 8;
     pcOutData[uiIndex++] = uiHumidity & 0xff;    
 
+    if(pstData->stAlarmData.uiPaiShuiMode == 0)
+    {
+        pcOutData[uiIndex++] = 1;
+    }
+    else
+    {
+        pcOutData[uiIndex++] = 0;
+    }
+    pcOutData[uiIndex++] = pstData->stDevStatus.uiPaiShuiStatus;
+
+    pcOutData[uiIndex++] = pstData->stAlarmData.uiTimOpenCloseFlag;
+    
     Data_Get_UnLock();
     pcOutData[2] = uiIndex - 1;
     pcOutData[uiIndex++] = Rs485_Pro_Crc8Check(&pcOutData[2], pcOutData[2]-1);
@@ -270,6 +282,10 @@ uint8_t Rs485_Pro_TaskCmd3(uint8_t *pcInData, uint8_t uiInlen, uint8_t *pcOutDat
     return uiIndex;
 }
 
+extern int8_t g_iAnion;
+extern int8_t g_iUVLamp;
+extern int8_t g_iOzone;
+extern uint32_t g_uiOzoneTick;
 uint8_t Rs485_Pro_TaskCmd4(uint8_t *pcInData, uint8_t uiInlen, uint8_t *pcOutData, uint8_t uiOutlen) {
     DIGIT_STATUS_U stParaCmd;
     uint8_t uiMode;
@@ -280,22 +296,29 @@ uint8_t Rs485_Pro_TaskCmd4(uint8_t *pcInData, uint8_t uiInlen, uint8_t *pcOutDat
         return 0;
     }
 
-    if (Get_Dev_TimRunStatus()) {
-        Debug_Print("---->device is tim running!");
-        return 0;
-    }
-
+    //if (Get_Dev_TimRunStatus()) {
+    //    Debug_Print("---->device is tim running!");
+    //    return 0;
+    //}
+    CORE_DATA_S *pstData = NULL;
+    Data_Get_Lock();
+    pstData = Data_Get_Point();
+    pstData->stDevStatus.uiFanReportStatus = 0;
+    Data_Get_UnLock();
     uiMode = pcInData[4];
     uiflag = pcInData[5];
     stParaCmd.uiMode = uiMode + 1;
     stParaCmd.uiCompressor = pcInData[6];
     stParaCmd.uiWaterPump = pcInData[7];
     stParaCmd.uiUVLamp = pcInData[8];
+    g_iUVLamp = stParaCmd.uiUVLamp;
     stParaCmd.uiAnion = pcInData[9];
+    g_iAnion = stParaCmd.uiAnion;
     stParaCmd.uiElectricMachinery = pcInData[10];
     stParaCmd.uiOzone = pcInData[11];
     stParaCmd.uiBaiYeFengJi = pcInData[12];
-
+    g_uiOzoneTick = 0;
+    g_iOzone = 0;
     if (uiflag) {
         Debug_Print("---->now stop device");
     } else {
@@ -304,8 +327,12 @@ uint8_t Rs485_Pro_TaskCmd4(uint8_t *pcInData, uint8_t uiInlen, uint8_t *pcOutDat
                     stParaCmd.uiElectricMachinery, stParaCmd.uiOzone, stParaCmd.uiBaiYeFengJi);
     }
     Debug_DevCurMode_(stParaCmd.uiMode);
-
+    if(1 == uiflag)
+    {
+        Set_Dev_TimRunStatus(0);
+    }
     Run_Mode_Set(uiflag, &stParaCmd, 0);
+    
     return 0;
 }
 
@@ -390,7 +417,7 @@ uint8_t Rs485_Pro_TaskCmd8(uint8_t *pcInData, uint8_t uiInlen, uint8_t *pcOutDat
     DIGIT_STATUS_U stParaCmd;
     uint8_t uiMode;
     uint8_t uiflag;
-
+    uint8_t ucOpenFlag = 0;
     if (uiInlen < 35) {
         Debug_Print("Rs485_Pro_TaskCmd8 failed! uiInlen:%u", uiInlen);
         return 0;
@@ -415,23 +442,7 @@ uint8_t Rs485_Pro_TaskCmd8(uint8_t *pcInData, uint8_t uiInlen, uint8_t *pcOutDat
             Set_TimCycleType(0);
         }
 
-        for (int i = 0; i < 7; i++) {
-            if (pcInData[i+6] == 0) {
-                Set_TimTypeByWeek(i+1, TIM_OPENCLOSE_F1);
-            } else if (pcInData[i+6] == 1) {
-                Set_TimTypeByWeek(i+1, TIM_OPENCLOSE_F2);
-            } else if (pcInData[i+6] == 2) {
-                Set_TimTypeByWeek(i+1, TIM_OPENCLOSE_F3);
-            } else if (pcInData[i+6] == 3) {
-                Set_TimTypeByWeek(i+1, TIM_OPENCLOSE_F4);
-            }
-        }
         
-        /* 若全为常关状态，那么不开启定时任务 */
-        if (Check_TimIsClosed()) {
-            Debug_Print("Invalid Tim Task!");
-            return 0;
-        }
 
         Data_Get_Lock();
         pstData = Data_Get_Point();
@@ -447,6 +458,37 @@ uint8_t Rs485_Pro_TaskCmd8(uint8_t *pcInData, uint8_t uiInlen, uint8_t *pcOutDat
         pstData->stAlarmData.stDataTimeStart[2].uiMin = DEC2BCD(pcInData[22]);
         pstData->stAlarmData.stDataTimeEnd[2].uiHour = DEC2BCD(pcInData[23]);
         pstData->stAlarmData.stDataTimeEnd[2].uiMin = DEC2BCD(pcInData[24]);
+        
+        for (int i = 0; i < 7; i++) {
+            if (pcInData[i+6] == 0) {
+                if(pstData->stAlarmData.stDataTimeStart[0].uiHour+pstData->stAlarmData.stDataTimeStart[0].uiMin !=
+                    pstData->stAlarmData.stDataTimeEnd[0].uiHour+pstData->stAlarmData.stDataTimeEnd[0].uiMin ||
+                    pstData->stAlarmData.stDataTimeStart[1].uiHour+pstData->stAlarmData.stDataTimeStart[1].uiMin !=
+                    pstData->stAlarmData.stDataTimeEnd[1].uiHour+pstData->stAlarmData.stDataTimeEnd[1].uiMin)
+                {
+                    Set_TimTypeByWeek(i+1, TIM_OPENCLOSE_F1);
+                }
+            } else if (pcInData[i+6] == 1) {
+                if(pstData->stAlarmData.stDataTimeStart[2].uiHour+pstData->stAlarmData.stDataTimeStart[2].uiMin !=
+                    pstData->stAlarmData.stDataTimeEnd[2].uiHour+pstData->stAlarmData.stDataTimeEnd[2].uiMin)
+                {
+                    Set_TimTypeByWeek(i+1, TIM_OPENCLOSE_F2);
+                }
+            } else if (pcInData[i+6] == 2) {
+                
+                Set_TimTypeByWeek(i+1, TIM_OPENCLOSE_F3);
+            } else if (pcInData[i+6] == 3) {
+                Set_TimTypeByWeek(i+1, TIM_OPENCLOSE_F4);
+            }
+        }
+        
+        /* 若全为常关状态，那么不开启定时任务 */
+        if (Check_TimIsClosed()) {
+            Debug_Print("Invalid Tim Task!");
+            Data_Get_UnLock();
+            return 0;
+        }        
+        
         uiMode = pcInData[25] + 1;
         pstData->stAlarmData.stOutPutEnable.uiMode = uiMode;
         pstData->stAlarmData.stOutPutEnable.uiCompressor = pcInData[26];
