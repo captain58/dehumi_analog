@@ -2,7 +2,7 @@
 #define __CONFIG_H__
 
 #define MAJOR_VER       "v0.0."
-#define MINOR_VER       "50"
+#define MINOR_VER       "51"
 #define SPECIAL_VER     "-SHT3x-ARP"
 /* π‹≈ÃŒ¬∂»adc */
 #define BSP_ADC_NTC_GPIO            (GpioPortA)
@@ -33,7 +33,9 @@
 #define   AC_MOTOR_GPIO                (GpioPortB)
 #define   AC_MOTOR_PIN                 (GpioPin4)
 
-#define CON_PM25_PIRS10A 1
+//#define CON_PM25_PIRS10A 1
+
+#define CON_PURIFY_AUTO 1
 
 #endif
 

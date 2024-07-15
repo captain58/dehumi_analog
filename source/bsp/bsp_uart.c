@@ -4,7 +4,7 @@
 #include "bsp_uart.h"
 #include "bsp_gpio.h"
 #include "reset.h"
-
+#include "bsp_pm2_5.h"
 rt_uint8_t uart_rx0_buf[UART_RX_BUF_LEN] = {0};
 rt_uint8_t uart_rx1_buf[UART_RX_BUF_LEN] = {0};
 static struct rt_ringbuffer  g_uart0_rxcb;         /* 定义一个 ringbuffer cb */
@@ -184,6 +184,9 @@ int BspUartInit(void)
     rt_sem_init(&(g_shell_rx_sem), "shell_rx", 0, 0);
     rt_sem_init(&(g_uart_rx_sem), "uart_rx", 0, 0);
 
+    Bsp_Pm2_5_Init();
+    
+    
     Bsp_Uart_Init();
 
     return 0;
@@ -218,7 +221,15 @@ void Bsp_Rs485_SendData(char *pcData, uint32_t uilen) {
     Bsp_SetGpioStatus(BSP_485EN_GPIO, BSP_485EN_PIN, 0);
     return;
 }
+void Bsp_Uart_SendChars(uint8_t ch, char *pcData, uint32_t uilen) {
 
+
+    for (int i = 0; i < uilen; i++) {
+        Bsp_Uart_SendChar(ch, pcData[i]);
+    }
+
+    return;
+}
 /******************************************************************************
  * EOF (not truncated)
  ******************************************************************************/
